@@ -13,7 +13,7 @@
 - [x] Vitest server-render smoke test passed (1 test). This does not verify browser interactions.
 - [x] Use Webpack for dev/build because sandbox restrictions block Turbopack internal ports.
 - [ ] Browser, touch, keyboard and iPhone Safari validation — browser tool unavailable.
-- [ ] User design review before Phase 2.
+- [x] User approved white/navy UI and authorized Phase 2.
 
 ## Phase 1 design revision — white and navy
 - [x] Replace dark/neon palette with white #FFFFFF, navy #142D4E, secondary #EAF1F8, muted #64748B.
@@ -26,19 +26,44 @@
 - [x] Revised production build passed, including TypeScript checks (`npm run build`).
 - [ ] Visual and interaction checks on iPhone Safari and installed PWA; managed browser tool unavailable, PWA remains Phase 4.
 
-## Phase 2 — Workout engine (not started)
-- [ ] State machine and timestamp-based timer, preparation, deadline and pause accounting.
-- [ ] Valid round timestamps, duplicate-tap protection, undo, scoring and partial validation.
-- [ ] Refresh/background recovery and completion cues.
-- [ ] Vitest coverage for requested engine scenarios.
+## Phase 2 — Workout engine
+- [x] Preserve the approved white/navy UI; bind workout/results to the live engine.
+- [x] Pure state machine with idle, preparing, running, paused, completed; saved reserved for Phase 3.
+- [x] Five-second 5/4/3/2/1/GO preparation and timestamp-based 20-minute timer.
+- [x] Round timestamps, 30 reps/round, 600ms rapid-tap guard, undo, pause/resume and finish.
+- [x] Exact deadline, suspended-browser resolution and input rejection at expiry.
+- [x] Partial reps 0–29, validated scoring, effort/notes and results draft.
+- [x] IndexedDB current-session recovery, serialized writes, runtime validation and visible storage errors.
+- [x] Development-only 30-second mode with distinct configuration identity.
+- [x] Optional foreground audio and visual completion cue; audio fallback tests.
+- [x] 71 Vitest tests passed, including 14 DOM integration tests and 7 IndexedDB tests.
+- [x] Final production build passed, including TypeScript, after accessibility/copy edits.
+- [x] React review: synchronous event ref, cleanup of listeners/interval/audio, transactional persistence, accessible native dialog and results focus, no side effects in engine.
+- [x] MacBook run/test instructions and manual device review checklist.
+- [ ] Real iPhone Safari/audio/background behavior and browser E2E verification; browser tool unavailable.
+- [x] User confirmed the Phase 2 engine works and authorized Phase 3.
+- [x] Phase 2 remained unpushed; subsequent work is on local phase-3-history branch.
 
-## Phase 3 — Local data (not started)
-- [ ] IndexedDB active and saved sessions, complete session schema.
-- [ ] Real history, splits, configuration-matched PB and custom isolation.
-- [ ] Validated JSON export/import and duplicate handling.
-- [ ] Persistence, recovery and import tests.
+## Phase 3 — History, records and analytics
+- [x] Preserve white/navy design and unchanged Phase 2 engine.
+- [x] Migrate IndexedDB v1→v2, preserving active data; add saved sessions and deleted-ID stores.
+- [x] Explicit Save workout, transactional saved-state marker, duplicate protection and saved-score lock.
+- [x] Real newest-first history with date/time, duration, full/partial/total score, detail view and all available splits.
+- [x] Single-record Delete inside detail; date/score confirmation, Cancel unchanged, persistent targeted deletion and no bulk delete.
+- [x] Recalculate exact-configuration PB, counts, latest score, previous-comparable delta and chronological chart after changes.
+- [x] Standard/custom/development isolation and useful empty/missing-split states.
+- [x] Editable saved notes with transactional persistence and refresh recovery.
+- [x] Versioned JSON export of all saved records; previewed merge-only import with duplicate/conflict/deleted-ID reporting.
+- [x] Validation rejects malformed entries and unsupported envelopes; failed import rolls back atomically.
+- [x] 117 automated tests passed across 8 files, including Phase 2 regressions, migration, history data and DOM flows.
+- [x] Final production build and TypeScript checks passed after all source/CSS changes.
+- [x] MacBook source archive and detailed local test instructions prepared.
+- [x] React review: native dialog, bounded input, async errors, effect cleanup and memoized analytics; no new dependencies.
+- [ ] Real Safari/iPhone file controls, chart rendering, layout and physical restart checks; browser tooling unavailable.
+- [ ] User Phase 3 review and production release authorization.
+- [x] No pushes, merges or deployments.
 
-## Phase 4 — PWA and deployment (not started)
+## Phase 4 — PWA and release (pending)
 - [ ] Manifest, icons, offline service worker and update behavior.
 - [ ] iPhone Safari and installed-PWA checks; honest capability messaging.
 - [ ] Playwright end-to-end coverage, deployment configuration and release checks.
