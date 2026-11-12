@@ -1,88 +1,32 @@
-# CINDY — Phase 3
+# CINDY — local release candidate
 
-Mobile-first Cindy tracking with the approved white/navy design, the existing Phase 2 workout engine, and real local history. No sample sessions are displayed.
+Approved white/navy Cindy tracker with exercise-aware partial rounds, local history/backup, iPhone PWA assets and separate Chelsea 30-minute EMOM mode. Nothing has been deployed for this release.
 
-## Run on your MacBook
+## MacBook
 
-Use **Node.js 24.x** and npm. Phase 3 is local to this workspace and is **not pushed or deployed**; GitHub `main` and the live Vercel site have not been updated. Download `cindy-phase3.zip` from this chat and extract this version first.
-
-If the archive is in Downloads:
+Download `cindy-release.zip` from the chat, then with Node.js 24:
 
 ```sh
 mkdir -p ~/Projects
-unzip ~/Downloads/cindy-phase3.zip -d ~/Projects
-cd ~/Projects/cindy-phase3 && npm ci && npm test && npm run typecheck && npm run build && npm run dev
+unzip ~/Downloads/cindy-release.zip -d ~/Projects
+cd ~/Projects/cindy-release && npm ci && npm test && npm run build && npm run dev
 ```
 
-Open **http://localhost:3000**. The `&&` chain stops on an error, including a failed `cd`, so npm cannot accidentally run in your home folder. Confirm you are in the right folder with `pwd` and `ls package.json`.
+Open http://localhost:3000. Cindy is the default. Use the workout selector for Chelsea. The optional 30-second development mode applies only to Cindy. Chelsea uses its actual 30-minute schedule; automated tests advance the timestamp clock without waiting 30 minutes.
 
-If you already copied this updated project to another directory, open that directory containing `package.json` and run:
+Stop dev with Control-C. For production/PWA checks use a **different origin/port** so a previously installed service worker cannot obscure development changes:
 
 ```sh
-npm ci
-npm test
-npm run typecheck
-npm run build
-npm run dev
+npm run build && npm start -- --port 3001
 ```
 
-Stop the server with **Control-C**. To check the production version locally:
+Open http://localhost:3001 online once and wait for Offline shell ready. Desktop localhost supports service workers; an iPhone accessing your Mac over plain LAN HTTP does not. Use an approved HTTPS test environment for physical installation checks. Keep using the same origin/profile to retain local records. Never clear IndexedDB to update the application.
 
-```sh
-npm run build && npm start
-```
+## What to review
 
-Use a separate browser profile for production checks if a development-only test session is still active. Development test mode is intentionally absent in production. With Homebrew already installed, Node 24 can be selected using:
+- Results: pull-ups first, then push-ups, then squats; all 30 convert to a round without an invented timestamp.
+- History: saved notes, per-round splits, individual confirmed deletion, configuration-specific PB/chart and merge-only JSON backups. Existing/deleted IDs are never silently overwritten/restored on this device.
+- Chelsea: minute 1–30, per-minute countdown, on-time completion, explicit incomplete, missed minutes, pause/resume, deadline and saved minute ledger. Scores count only on-time completed minutes. Cindy records remain separate.
+- Installed PWA: navy C monogram, standalone launch, initial online asset caching, offline workout and safe update behavior. Close all app windows to activate an installed update.
 
-```sh
-brew install node@24
-export PATH="$(brew --prefix node@24)/bin:$PATH"
-node --version
-```
-
-## Quick review flow
-
-1. In development, enable **30-second test mode** on Home, then Start. The five-second preparation and Phase 2 engine are unchanged.
-2. Complete a few rounds, use Undo and Pause/Resume, then Finish or let the timer expire.
-3. Add partial reps and notes on Results, then select **Save workout**. Repeated save attempts retain one ID. Saved scores become read-only; saved notes are edited in the detail view.
-4. Open **History**, select the development configuration for analytics, then open a record. Check splits, edit notes and save them. Refresh and verify persistence.
-5. Select **Delete workout** inside the detail. The confirmation displays the exact date/time and score. Cancel first, then confirm deletion; verify only that record disappears and analytics updates.
-6. Use **Export JSON** and **Import JSON** in History. Import has a preview and explicit confirmation. Re-importing the same backup reports skipped duplicates rather than adding extra sessions.
-
-Use a standard 20-minute session (you can Finish early for local review) to populate the standard Cindy personal-best card. Development/custom configurations remain separate.
-
-See [PHASE_3_REVIEW.md](PHASE_3_REVIEW.md) for detailed validation and backup behavior.
-
-## Data and architecture
-
-- `lib/workout/engine.ts` is unchanged from Phase 2: timestamp timing, scoring, preparation, pause accounting, double-tap guard and undo.
-- `lib/workout/storage.ts` migrates IndexedDB from version 1 to 2 without removing the active draft. It adds `sessions` and `deleted-sessions` stores alongside `active-session`.
-- `lib/history/model.ts` validates canonical saved records, including stable ID, configuration, date/start/end, elapsed duration, full/partial/total score, round timestamps, pauses, effort and notes.
-- `lib/history/repository.ts` provides transactional save, single-record delete, notes updates and merge-only import. Saving commits the active saved marker atomically with history. No bulk deletion API exists.
-- `lib/history/analytics.ts` computes exact-configuration PB, newest-first ordering, latest/previous delta, chronological chart points and round splits.
-- `lib/history/backup.ts` creates versioned JSON and validates backup input.
-- `components/history.tsx` reuses existing card, stat, chart and dialog styles for records, details and backup controls.
-
-## Backup rules
-
-Import is **merge-only**, never replace. Exact duplicate IDs are skipped. Conflicting IDs keep the existing record and report the conflict. Within a file, the first valid record for an ID is retained and later repeats are reported. Malformed entries are rejected individually; a malformed/unsupported envelope rejects the entire file. Valid entries can be imported after preview confirmation. A write failure rolls back the merge transaction.
-
-Deleted IDs are remembered on this device and skipped during import, so restoring an older backup does not silently resurrect deleted workouts. Tombstones are not part of the saved-workout export. A different device has no knowledge of this device's deleted IDs.
-
-Imports accept version 1 backups up to **10 MB / 10,000 entries**. Missing round timestamps are represented as unavailable; split times are never invented. Optional missing notes/effort default to empty/null.
-
-## Verification and limits
-
-**117 automated tests pass**: 46 engine, 7 active-storage, 14 workout DOM integration, 3 sound adapter, 1 overview render, 37 history/data/analytics, 8 history DOM integration, and 1 database migration test. The production build and TypeScript checks pass. Tests cover saving/reopening, duplicate saves, atomic rollback, targeted deletion, deleted-ID persistence, notes edits, JSON round trips/merges/rejections, PB recalculation, chart data, configuration isolation, UI confirmations and empty states.
-
-DOM tests use jsdom and fake IndexedDB. Recharts geometry is mocked in history UI tests; its data calculations are tested separately. Actual Safari rendering, iPhone downloads/file selection, audible cues and physical browser restart/suspension are not device-tested. Managed browser tooling is unavailable here. Playwright is installed, but browser E2E coverage remains pending.
-
-Data belongs to one browser origin/profile. It survives ordinary refresh/reopen after the transaction commits, but is not synced across devices and is removed if browser storage is cleared. Keep JSON backups. PWA manifest, offline caching and installation testing remain Phase 4.
-
-## Release status
-
-Source repository: https://github.com/chi-man-yeung/cindy
-
-Work remains on local branch `phase-3-history`; nothing has been pushed, merged or deployed. The source archive has no Git metadata. Vercel's connected repository automatically deploys pushes, so release requires a separate authorized step.
-
-See [CHECKLIST.md](CHECKLIST.md) for completed and pending tasks.
+See [RELEASE_REPORT.md](RELEASE_REPORT.md) for tests, known limits, manual iPhone checks and deployment steps, and [CHECKLIST.md](CHECKLIST.md) for verification results. Earlier phase review documents are historical.

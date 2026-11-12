@@ -8,7 +8,7 @@ it('declares standalone navy/white metadata and valid icon dimensions',async()=>
 import {runInNewContext} from 'node:vm';
 it('pre-caches the shell and serves cached navigation when offline without intercepting writes',async()=>{
  const events:Record<string,(e:any)=>void>={};let installed:string[]=[];const cached={html:'CINDY'};
- const context={URL,self:{location:{origin:'https://cindy.test'},clients:{claim:async()=>{}},addEventListener:(name:string,fn:any)=>events[name]=fn},caches:{open:async()=>({addAll:async(list:string[])=>{installed=list},put:async()=>{}}),match:async()=>cached,keys:async()=>[]},fetch:async()=>{throw new Error('offline')}};
+ const context={URL,self:{location:{origin:'https://cindy.test'},clients:{claim:async()=>{}},addEventListener:(name:string,fn:any)=>events[name]=fn},caches:{open:async()=>({addAll:async(list:string[])=>{installed=list},put:async()=>{},match:async()=>cached}),match:async()=>cached,keys:async()=>[]},fetch:async()=>{throw new Error('offline')}};
  runInNewContext(readFileSync('scripts/service-worker-template.js','utf8').replace('/*CACHE_NAME*/','"test"').replace('/*ASSETS*/','["/","/_next/static/app.js"]'),context);
  let wait:Promise<any>=Promise.resolve();events.install({waitUntil:(p:Promise<any>)=>wait=p});await wait;expect(installed).toContain('/_next/static/app.js');
  let response:Promise<any>|undefined;events.fetch({request:{method:'GET',mode:'navigate',url:'https://cindy.test/'},respondWith:(p:Promise<any>)=>response=p});expect(await response).toEqual(cached);

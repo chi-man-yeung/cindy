@@ -10,3 +10,9 @@ it.each([0,1,5,6,15,16,29,30])('normalizes %i sequential reps and survives seria
  expect(validateSavedWorkout(JSON.parse(JSON.stringify(r)))).toEqual(r);
 });
 it('rejects invalid exercise order',()=>{expect(()=>partialTotal({pullUps:4,pushUps:1,airSquats:0})).toThrow();expect(()=>partialTotal({pullUps:5,pushUps:9,airSquats:1})).toThrow()});
+import 'fake-indexeddb/auto';
+import {persistActiveSession,loadActiveSession} from '../lib/workout/storage';
+it('retains the normalized additional round across an IndexedDB reopen/read',async()=>{
+ const s=transition(completed('normalized',2),{type:'results',now:Date.now(),partialReps:30});
+ await persistActiveSession(s);const recovered=await loadActiveSession();expect(recovered?.totalReps).toBe(90);expect(recordFromSession(recovered!).completedRoundTimestamps).toEqual([1000,2000,null]);
+});

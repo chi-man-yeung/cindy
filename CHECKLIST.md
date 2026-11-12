@@ -67,3 +67,17 @@
 - [ ] Manifest, icons, offline service worker and update behavior.
 - [ ] iPhone Safari and installed-PWA checks; honest capability messaging.
 - [ ] Playwright end-to-end coverage, deployment configuration and release checks.
+
+## Phases 3.1 / 4 / 5 release candidate
+- [x] Audit: existing Phase 3.0 suite passed (117 tests).
+- [x] Phase 3.1 exercise sequence, boundaries 0/1/5/6/15/16/29/30, full-round normalization, legacy compatibility and history breakdown; milestone 126 tests passed.
+- [x] Phase 4 standalone manifest, navy/white metadata, C icon master and PNG sizes, Apple touch icon, deterministic offline shell and update lifecycle; milestone 128 tests and production build passed.
+- [x] Phase 5 separate Chelsea scheduling, on-time minute input, missed/incomplete status, pause/resume, background expiry, results/history and separate performance groups.
+- [x] Final full regression: 135 tests passed across 12 files.
+- [x] Final production build and TypeScript checks passed, including service-worker emission and input-font adjustment.
+- [x] Existing IndexedDB stores and records preserved; only additive session metadata; no destructive migration.
+- [x] GitHub remote retained; Vercel build settings and cache headers prepared.
+- [x] Local milestone commits; no push, merge or production deployment.
+- [ ] Real browser offline/layout coverage: managed browser tool unavailable. VM/jsdom tests are not physical Safari verification.
+- [ ] Physical iPhone Home Screen icon, standalone/offline launch, native file controls, audio, background behavior and upgrade verification.
+- [ ] Explicit production release approval.

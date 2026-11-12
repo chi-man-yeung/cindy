@@ -10,12 +10,10 @@ self.addEventListener('activate',event=>{
 self.addEventListener('fetch',event=>{
  const request=event.request;const url=new URL(request.url);
  if(request.method!=='GET'||url.origin!==self.location.origin)return;
- if(request.mode==='navigate'){
-  event.respondWith(fetch(request).then(async response=>{
-   if(response.ok&&!response.redirected){const cache=await caches.open(CACHE);await cache.put('/',response.clone())}
-   if(!response.ok) return (await caches.match('/'))||response;
-   return response;
-  }).catch(()=>caches.match('/')));return;
+ if(request.mode==='navigate'&&url.pathname==='/'){
+  // Keep HTML paired with this worker's hashed assets. A newer release activates
+  // only after all old clients close, never midway through an active workout.
+  event.respondWith(caches.open(CACHE).then(cache=>cache.match('/')).then(hit=>hit||fetch(request)));return;
  }
  if(ASSETS.includes(url.pathname)&&url.pathname!=='/')event.respondWith(caches.match(request).then(hit=>hit||fetch(request)));
 });

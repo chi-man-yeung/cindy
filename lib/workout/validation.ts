@@ -1,3 +1,4 @@
+import {validateChelsea} from './chelsea';
 import { elapsedTime, score, type WorkoutSession } from './engine';
 const finite = (n: unknown): n is number => typeof n === 'number' && Number.isFinite(n) && n >= 0;
 const nullableTime = (n: unknown) => n === null || finite(n);
@@ -54,5 +55,6 @@ export function validateSession(value: unknown): WorkoutSession {
   if ((s.completedRoundTimestamps.length > 0 && s.lastRoundTapAt === null) ||
       (s.lastRoundTapAt !== null && (s.startTime === null || s.lastRoundTapAt < s.startTime || s.lastRoundTapAt > s.lastObservedAt)) ||
       (!terminal && s.partialReps !== 0)) throw new Error('Invalid round data.');
+  validateChelsea(s);
   return structuredClone(s);
 }

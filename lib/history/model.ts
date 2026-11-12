@@ -1,7 +1,9 @@
+import {validateChelsea,type ChelseaMinute} from '../workout/chelsea';
 import { configurationKey, score, STANDARD_CINDY, type PauseDuration, type WorkoutConfiguration, type WorkoutSession } from '../workout/engine';
-import { breakdown, type ExerciseBreakdown } from '../workout/partials';
+import { breakdown, partialTotal, type ExerciseBreakdown } from '../workout/partials';
 import { validateSession } from '../workout/validation';
 export interface SavedWorkout {
+  chelseaMinutes?:ChelseaMinute[];
   schemaVersion: 1;
   id: string;
   status: 'saved';
@@ -44,6 +46,7 @@ export function validateSavedWorkout(value: unknown): SavedWorkout {
     typeof notes !== 'string' || notes.length > 2000 ||
     (effort !== null && (!Number.isInteger(effort) || effort < 1 || effort > 10)) ||
     !finite(s.savedAt) || !finite(s.notesUpdatedAt) || s.notesUpdatedAt < s.savedAt) throw new Error('Invalid record schema, configuration or score.');
+  if(s.exerciseBreakdown!==undefined&&partialTotal(s.exerciseBreakdown)!==s.partialReps)throw new Error('Exercise breakdown does not match score.');
   let pauseEnd = s.startTime;
   let pausedMs = 0;
   for (const p of s.pauseDurations) {
@@ -59,8 +62,10 @@ export function validateSavedWorkout(value: unknown): SavedWorkout {
     if (!finite(time) || time < previous || time >= c.durationMs || time > s.elapsedDurationMs) throw new Error('Invalid round timestamps.');
     previous = time;
   }
+  validateChelsea({...s,completedRoundTimestamps:times});
   // Canonical construction excludes unexpected import fields and stabilizes duplicate comparisons.
   return {
+    ...(s.chelseaMinutes?{chelseaMinutes:structuredClone(s.chelseaMinutes)}:{}),
     schemaVersion:1, id:s.id, status:'saved', date:new Date(s.date).toISOString(),
     configuration:{id:c.id,durationMs:c.durationMs,preparationMs:5000,repsPerRound:30,
       movements:[{name:'pull-ups',reps:5},{name:'push-ups',reps:10},{name:'air-squats',reps:15}]},
@@ -75,6 +80,7 @@ export function recordFromSession(value: WorkoutSession, now=Date.now()): SavedW
   return validateSavedWorkout({...s,status:'saved',completedRounds:s.completedRoundTimestamps.length+(s.additionalCompletedRounds??0),completedRoundTimestamps:[...s.completedRoundTimestamps,...Array(s.additionalCompletedRounds??0).fill(null)],savedAt:now,notesUpdatedAt:now});
 }
 export function configurationLabel(c: WorkoutConfiguration): string {
+  if(c.id==='chelsea-standard-v1')return 'Chelsea · 30-minute EMOM';
   if (configurationKey(c) === configurationKey(STANDARD_CINDY)) return 'Standard Cindy';
   return c.id === 'cindy-development-30s-v1' ? 'Development test · 30 sec' : `Custom Cindy · ${c.durationMs / 60_000} min cap`;
 }

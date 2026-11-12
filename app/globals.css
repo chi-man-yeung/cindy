@@ -83,3 +83,5 @@ select:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
  .recent-row .recent-score{flex-shrink:0;font-size:20px}
  .recent-row .recent-score>span{max-width:95px;line-height:1.6}
 }
+.workout-options input[type=number]{width:80px;min-height:44px;border:1px solid var(--control-border);border-radius:8px;background:var(--bg);color:var(--text);padding:8px;font:inherit;font-size:16px;margin-left:auto}
+.backup-actions button[aria-pressed=true]{background:var(--accent);color:var(--on-primary)}

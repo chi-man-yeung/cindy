@@ -1,0 +1,21 @@
+// @vitest-environment jsdom
+import 'fake-indexeddb/auto';
+import {act,cleanup,fireEvent,render,screen,waitFor} from '@testing-library/react';
+import {expect,it,vi} from 'vitest';
+import Home from '../app/page';
+import {clearTestData} from './history-fixtures';
+import {listSavedWorkouts} from '../lib/history/repository';
+it('selects Chelsea, completes a minute, recovers expiry and saves its minute results',async()=>{
+ await clearTestData();const clock=vi.spyOn(Date,'now').mockReturnValue(1700000000000);vi.spyOn(window,'scrollTo').mockImplementation(()=>{});
+ const view=render(<Home/>);
+ try{
+  await waitFor(()=>expect((screen.getByRole('button',{name:/START WORKOUT/}) as HTMLButtonElement).disabled).toBe(false));
+  fireEvent.click(screen.getByRole('button',{name:'Chelsea · 30-minute EMOM'}));fireEvent.click(screen.getByRole('button',{name:/START WORKOUT/}));
+  clock.mockReturnValue(1700000006000);await act(async()=>{window.dispatchEvent(new Event('pageshow'))});
+  expect(screen.getByText('MINUTE 1 OF 30 · TIME IN MINUTE')).toBeTruthy();fireEvent.click(screen.getByRole('button',{name:/COMPLETE THIS MINUTE/}));
+  clock.mockReturnValue(1700001805000);await act(async()=>{window.dispatchEvent(new Event('pageshow'))});
+  expect(screen.getByText('1 completed · 29 missed · 0 incomplete')).toBeTruthy();fireEvent.click(screen.getByRole('button',{name:'SAVE WORKOUT'}));
+  await waitFor(()=>expect(screen.getByRole('button',{name:'SAVED TO HISTORY'})).toBeTruthy());
+  const records=await listSavedWorkouts();expect(records[0].chelseaMinutes).toHaveLength(30);expect(records[0].totalReps).toBe(30);
+ }finally{view.unmount();cleanup();vi.restoreAllMocks()}
+});

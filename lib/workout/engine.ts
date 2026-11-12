@@ -1,3 +1,4 @@
+import type {ChelseaMinute} from './chelsea';
 /** Pure workout state machine. All times are milliseconds; no timer depends on tick counts. */
 export type WorkoutStatus = 'idle' | 'preparing' | 'running' | 'paused' | 'completed' | 'saved';
 export interface WorkoutConfiguration {
@@ -24,6 +25,7 @@ export function developmentConfiguration(): WorkoutConfiguration {
 export interface PauseDuration { startedAt: number; endedAt: number }
 /** Stable IDs/configuration are also the foundation for Phase 3 history/import/deletion. */
 export interface WorkoutSession {
+  chelseaMinutes?: ChelseaMinute[];
   schemaVersion: 1;
   id: string;
   date: string;
@@ -47,7 +49,7 @@ export interface WorkoutSession {
   notes: string;
 }
 export type WorkoutEvent =
-  | { type: 'start' | 'tick' | 'round' | 'undo' | 'pause' | 'resume' | 'finish'; now: number }
+  | { minute?:number; type: 'incomplete' | 'start' | 'tick' | 'round' | 'undo' | 'pause' | 'resume' | 'finish'; now: number }
   | { type: 'results'; now: number; partialReps?: number; perceivedEffort?: number | null; notes?: string };
 export function score(fullRounds: number, partialReps: number): number {
   if (!Number.isInteger(fullRounds) || fullRounds < 0 || !Number.isInteger(partialReps) || partialReps < 0 || partialReps > 29) {
