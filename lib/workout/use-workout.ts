@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { advance, createWorkout, developmentConfiguration, preparationCue, STANDARD_CINDY, transition, type WorkoutEvent, type WorkoutSession } from './engine';
-import { loadActiveSession, persistActiveSession } from './storage';
+import { clearFinishedDraft, loadActiveSession, persistActiveSession } from './storage';
 import {CHELSEA,isChelsea,advanceChelsea,transitionChelsea} from './chelsea';
 import { WorkoutSounds } from './sounds';
 import { saveCompletedWorkout } from '../history/repository';
@@ -42,12 +42,13 @@ export function useWorkout() {
   },[save]);
   useEffect(() => {
     let cancelled = false;
-    void loadActiveSession().then(stored => {
+    void loadActiveSession().then(async stored => {
       if (cancelled) return;
       if (stored?.configuration.id === 'cindy-development-30s-v1' && !['completed','saved'].includes(stored.status) && process.env.NODE_ENV !== 'development') {
         setStorageError('A development test session was found. Open the development app to finish it; test mode is unavailable in production.');
         return;
       }
+      if(stored?.status==='saved'){await clearFinishedDraft(stored.id);if(cancelled)return;stored=null}
       const recovered = stored ? (isChelsea(stored)?advanceChelsea:advance)(stored,Date.now()) : null;
       current.current = recovered;
       setSession(recovered);
@@ -89,8 +90,10 @@ export function useWorkout() {
     previousStatus.current = session?.status;
   },[cue,session?.status,soundsEnabled]);
   useEffect(() => () => { sounds.current?.close(); sounds.current = null; },[]);
-  const start = useCallback(() => {
-    if (!ready || historySave.current || (current.current && ['preparing','running','paused'].includes(current.current.status))) return;
+  const start = useCallback((replaceSessionId?:string) => {
+    if (!ready || historySave.current) return false;
+    if(current.current && current.current.status!=='idle' && current.current.status!=='saved' && replaceSessionId!==current.current.id)return false;
+    if(replaceSessionId && current.current?.id!==replaceSessionId)return false;
     if (soundsEnabled) {
       sounds.current ??= new WorkoutSounds();
       // Called in a user gesture so Safari can grant foreground audio playback.
@@ -103,6 +106,7 @@ export function useWorkout() {
     current.current = next;
     setSession(next);
     save(next);
+    return true;
   },[ready,soundsEnabled,testMode,mode,save]);
   const cancelPreparation = useCallback(() => {
     if (current.current?.status !== 'preparing') return;
@@ -119,10 +123,10 @@ export function useWorkout() {
     const snapshot = current.current;
     if (!snapshot || !['completed','saved'].includes(snapshot.status)) return Promise.reject(new Error('Finish the workout first.'));
     setHistorySaving(true);
-    const task = queue.current.then(()=>saveCompletedWorkout(snapshot)).then(result=>{
+    const task = queue.current.then(()=>saveCompletedWorkout(snapshot)).then(async result=>{
+      await clearFinishedDraft(snapshot.id);
       if (current.current?.id === snapshot.id) {
-        const saved = { ...snapshot, status:'saved' as const };
-        current.current = saved; setSession(saved); setStorageError('');
+        current.current = null; setSession(null); setStorageError('');
       }
       return result;
     }).finally(()=>{historySave.current=null;setHistorySaving(false)});

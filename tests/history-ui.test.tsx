@@ -13,7 +13,7 @@ import { BASE, clearTestData, completed, saved } from './history-fixtures';
 // analytics calculation is tested separately. This is not browser chart rendering coverage.
 vi.mock('../components/progress-chart',()=>({default:({data}:{data:{id:string;date:number;reps:number}[]})=><div role="img" aria-label="Progress chart">{data.map(p=>`${p.id}:${p.reps}`).join(',')}</div>}));
 const history=()=>fireEvent.click(screen.getAllByRole('button',{name:'History'})[0]);
-async function boot(){const view=render(<Home/>);await waitFor(()=>expect((screen.getByRole('button',{name:/START WORKOUT|VIEW RESULTS|SAVE WORKOUT|SAVED TO HISTORY/}) as HTMLButtonElement).disabled).toBe(false));return view}
+async function boot(){const view=render(<Home/>);await waitFor(()=>expect((screen.getByRole('button',{name:/Start Cindy Workout|VIEW RESULTS|SAVE WORKOUT|SAVED TO HISTORY/}) as HTMLButtonElement).disabled).toBe(false));return view}
 async function openHistory(){const view=render(<Home/>);history();await waitFor(()=>expect(screen.queryByText('Loading your history…')).toBeNull());return view}
 function backupFile(text:string){const file=new File([text],'backup.json',{type:'application/json'});Object.defineProperty(file,'text',{value:async()=>text});return file}
 function upload(text:string){fireEvent.change(screen.getByLabelText('Import workout backup'),{target:{files:[backupFile(text)]}})}
@@ -29,15 +29,15 @@ describe('saved history UI flows (DOM simulation)',()=>{
   history();await waitFor(()=>expect(screen.getByText('Your first benchmark is ahead.')).toBeTruthy());
   expect(document.querySelector('.history-metrics')?.textContent).toContain('SESSIONS0');expect(screen.queryByText('Nov 10, 2026')).toBeNull();
  });
- it('saves completed results once, locks scoring and recovers the saved session on remount',async()=>{
+ it('saves once, returns to Overview, clears only the finished draft and preserves history on reload',async()=>{
   await persistActiveSession(completed('save-ui',3,12));const view=render(<Home/>);
   await waitFor(()=>expect(screen.getByRole('button',{name:'SAVE WORKOUT'})).toBeTruthy());
   const save=screen.getByRole('button',{name:'SAVE WORKOUT'});fireEvent.click(save);fireEvent.click(save);
-  await waitFor(()=>expect(screen.getByRole('button',{name:'SAVED TO HISTORY'})).toBeTruthy());
-  await waitFor(async()=>expect((await loadActiveSession())?.status).toBe('saved'));
-  expect(await listSavedWorkouts()).toHaveLength(1);expect((screen.getByLabelText('Partial push-ups') as HTMLInputElement).disabled).toBe(true);
-  view.unmount();render(<Home/>);await waitFor(()=>expect(screen.getByRole('button',{name:'SAVED TO HISTORY'})).toBeTruthy());
-  expect((screen.getByLabelText('Partial push-ups') as HTMLInputElement).value).toBe('7');
+  await waitFor(()=>expect(screen.getByText('Workout saved to history.')).toBeTruthy());
+  expect(await loadActiveSession()).toBeNull();expect(await listSavedWorkouts()).toHaveLength(1);
+  expect(screen.queryByLabelText('Partial push-ups')).toBeNull();
+  view.unmount();render(<Home/>);await waitFor(()=>expect((screen.getByRole('button',{name:'Start Cindy Workout'}) as HTMLButtonElement).disabled).toBe(false));
+  expect(screen.queryByText('YOUR SCORE')).toBeNull();expect((await listSavedWorkouts())[0].partialReps).toBe(12);
  });
  it('opens details, displays all splits, edits notes and retains them across remount',async()=>{
   await saveCompletedWorkout(completed('notes-ui',3));const view=await openHistory();

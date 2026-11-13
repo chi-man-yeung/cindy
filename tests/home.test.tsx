@@ -12,6 +12,6 @@ describe('Phase 3 overview render',()=>{
   expect(html).toContain('30 reps / round');
   expect(html).toContain('YOUR WORK. YOUR RECORD.');
   expect(html).toContain('No saved workouts yet.');
-  expect(html).toContain('START WORKOUT');
+  expect(html).toContain('Start Cindy Workout');
  });
 });

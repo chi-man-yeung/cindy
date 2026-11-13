@@ -81,3 +81,13 @@
 - [ ] Real browser offline/layout coverage: managed browser tool unavailable. VM/jsdom tests are not physical Safari verification.
 - [ ] Physical iPhone Home Screen icon, standalone/offline launch, native file controls, audio, background behavior and upgrade verification.
 - [ ] Explicit production release approval.
+
+## Phase 5.2 — Navigation and UX refinement
+- [x] Equal-width stretching mode cards, white/navy selected state and mode-specific Overview CTA.
+- [x] Overview is the sole start flow; Workout tab opens the active workout or an explicit empty state.
+- [x] Save commits history, clears only the finished draft, confirms success and returns to Overview.
+- [x] Saved legacy draft markers are cleared on recovery; unsaved results remain reviewable.
+- [x] Session-ID guards prevent duplicate/stale starts; replacing an active session or unsaved draft requires confirmation.
+- [x] Both workout engines, icon and history schema remain unchanged.
+- [x] Full regression: 142 tests passed across 13 files; production build and TypeScript checks passed.
+- [ ] Physical iPhone card geometry and touch-flow review. Equal-grid layout is tested as a CSS contract, not actual browser geometry.

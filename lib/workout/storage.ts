@@ -61,3 +61,12 @@ export async function closeWorkoutDatabase() {
   const pending = connection; connection = null;
   if (pending) (await pending).close();
 }
+/** Remove only this finished draft; never touch history or a different active session. */
+export async function clearFinishedDraft(id:string):Promise<void>{
+ const db=await openWorkoutDatabase();
+ return new Promise((resolve,reject)=>{
+  const tx=db.transaction(STORE,'readwrite');const store=tx.objectStore(STORE);const request=store.get(KEY);
+  request.onsuccess=()=>{if(request.result?.id===id&&['completed','saved'].includes(request.result.status))store.delete(KEY)};
+  tx.oncomplete=()=>resolve();tx.onerror=tx.onabort=()=>reject(tx.error??new Error('Could not reset the finished workout.'));
+ });
+}

@@ -46,3 +46,9 @@ After explicit production approval: push the reviewed branch, create/review a PR
 ## Final automated result
 
 Full regression: **135 passing tests across 12 files**. Production build and TypeScript checks passed, with generated service-worker output. The final input-font adjustment is included in the passing production build. No known failing automated check remains. Browser/physical-device checks above remain outstanding, rather than being reported as passed.
+
+## Phase 5.2
+
+Balanced equal-grid mode cards now select the Overview CTA. Workout navigation never creates a session. Active sessions are preserved across navigation; replacement requires confirmation tied to the current session ID. Saving clears only the finished active draft after history commits, returns to Overview and shows a success message. Legacy saved draft markers are cleaned up on recovery. Unsaved results are accessible from Workout without adding another Start flow.
+
+Both engine files, icons and the database schema are unchanged. Full regression: 142 tests passed across 13 files, including seven new navigation tests. Production build/TypeScript passed. iPhone layout geometry still requires physical/browser review; the automated layout check verifies equal CSS grid tracks and stretching only.

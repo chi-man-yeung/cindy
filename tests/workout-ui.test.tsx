@@ -14,12 +14,12 @@ async function at(time:number) {
 }
 async function boot() {
  const view=render(<Home/>);
- await waitFor(()=>expect((screen.getByRole('button',{name:/START WORKOUT/}) as HTMLButtonElement).disabled).toBe(false));
+ await waitFor(()=>expect((screen.getByRole('button',{name:/Start Cindy Workout/}) as HTMLButtonElement).disabled).toBe(false));
  return view;
 }
 async function start() {
  const view=await boot();
- fireEvent.click(screen.getByRole('button',{name:/START WORKOUT/}));
+ fireEvent.click(screen.getByRole('button',{name:/Start Cindy Workout/}));
  return view;
 }
 async function retained() {
@@ -102,7 +102,7 @@ describe('workout UI and persistence integration (DOM simulation, not Safari)',(
   await waitFor(()=>expect(screen.getByRole('timer').textContent).toBe('3'));
   fireEvent.click(screen.getByRole('button',{name:'Cancel'}));
   await waitFor(async()=>expect(await loadActiveSession()).toBeNull());
-  expect(screen.getByRole('button',{name:/START WORKOUT/})).toBeTruthy();
+  expect(screen.getByRole('button',{name:/Start Cindy Workout/})).toBeTruthy();
  });
  it('preserves a paused session on reload and does not record paused time',async()=>{
   const paused=transition(advance(transition(createWorkout('paused',T),{type:'start',now:T}),T+5000),{type:'pause',now:T+7000});
@@ -116,7 +116,7 @@ describe('workout UI and persistence integration (DOM simulation, not Safari)',(
  it('offers the 30-second test option only in development',async()=>{
   vi.stubEnv('NODE_ENV','development');await boot();
   fireEvent.click(screen.getByLabelText(/30-second test mode/));
-  fireEvent.click(screen.getByRole('button',{name:/START WORKOUT/}));
+  fireEvent.click(screen.getByRole('button',{name:/Start Cindy Workout/}));
   await at(T+6000);expect(screen.getByRole('timer').textContent).toBe('0:29');
   await at(T+35000);await waitFor(()=>expect(screen.getByText('YOUR SCORE')).toBeTruthy());
   expect(screen.getByText('Development test · Excluded from standard records')).toBeTruthy();
@@ -146,8 +146,9 @@ describe('recovery safeguards',()=>{
   await waitFor(()=>expect(screen.getByText('YOUR SCORE')).toBeTruthy());
   const confirm=vi.spyOn(window,'confirm').mockReturnValue(false);
   fireEvent.click(screen.getByRole('button',{name:'Start another workout'}));
+  fireEvent.click(screen.getByRole('button',{name:'Start Cindy Workout'}));
   expect((await loadActiveSession())?.id).toBe('original-draft');
-  confirm.mockReturnValue(true);fireEvent.click(screen.getByRole('button',{name:'Start another workout'}));
+  confirm.mockReturnValue(true);fireEvent.click(screen.getByRole('button',{name:'Start Cindy Workout'}));
   expect(screen.getByRole('timer').textContent).toBe('5');
   await retained();expect((await loadActiveSession())?.id).not.toBe('original-draft');
  });
@@ -158,7 +159,7 @@ describe('visible storage failure handling',()=>{
  it('reports a failed write, continues in memory, then retains the recovered state on the next action',async()=>{
   await boot();
   vi.spyOn(storage,'persistActiveSession').mockRejectedValueOnce(new Error('quota'));
-  fireEvent.click(screen.getByRole('button',{name:/START WORKOUT/}));
+  fireEvent.click(screen.getByRole('button',{name:/Start Cindy Workout/}));
   await waitFor(()=>expect(screen.getByRole('alert').textContent).toContain('Local storage failed'));
   expect(screen.getByRole('timer').textContent).toBe('5');
   await at(T+6000);fireEvent.click(screen.getByRole('button',{name:/COMPLETE ROUND/}));
@@ -169,6 +170,6 @@ describe('visible storage failure handling',()=>{
   vi.spyOn(storage,'loadActiveSession').mockRejectedValueOnce(new Error('invalid stored session'));
   render(<Home/>);
   await waitFor(()=>expect(screen.getByRole('alert').textContent).toContain('Existing data has not been deleted'));
-  expect((screen.getByRole('button',{name:/START WORKOUT/}) as HTMLButtonElement).disabled).toBe(true);
+  expect((screen.getByRole('button',{name:/Start Cindy Workout/}) as HTMLButtonElement).disabled).toBe(true);
  });
 });
