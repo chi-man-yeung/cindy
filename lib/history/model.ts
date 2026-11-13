@@ -1,9 +1,10 @@
-import {validateChelsea,type ChelseaMinute} from '../workout/chelsea';
+import {validateChelsea,type ChelseaMinute,type ChelseaScore} from '../workout/chelsea';
 import { configurationKey, score, STANDARD_CINDY, type PauseDuration, type WorkoutConfiguration, type WorkoutSession } from '../workout/engine';
 import { breakdown, partialTotal, type ExerciseBreakdown } from '../workout/partials';
 import { validateSession } from '../workout/validation';
 export interface SavedWorkout {
   chelseaMinutes?:ChelseaMinute[];
+  chelseaScore?:ChelseaScore;
   schemaVersion: 1;
   id: string;
   status: 'saved';
@@ -66,6 +67,7 @@ export function validateSavedWorkout(value: unknown): SavedWorkout {
   // Canonical construction excludes unexpected import fields and stabilizes duplicate comparisons.
   return {
     ...(s.chelseaMinutes?{chelseaMinutes:structuredClone(s.chelseaMinutes)}:{}),
+    ...(s.chelseaScore?{chelseaScore:structuredClone(s.chelseaScore)}:{}),
     schemaVersion:1, id:s.id, status:'saved', date:new Date(s.date).toISOString(),
     configuration:{id:c.id,durationMs:c.durationMs,preparationMs:5000,repsPerRound:30,
       movements:[{name:'pull-ups',reps:5},{name:'push-ups',reps:10},{name:'air-squats',reps:15}]},
@@ -80,7 +82,9 @@ export function recordFromSession(value: WorkoutSession, now=Date.now()): SavedW
   return validateSavedWorkout({...s,status:'saved',completedRounds:s.completedRoundTimestamps.length+(s.additionalCompletedRounds??0),completedRoundTimestamps:[...s.completedRoundTimestamps,...Array(s.additionalCompletedRounds??0).fill(null)],savedAt:now,notesUpdatedAt:now});
 }
 export function configurationLabel(c: WorkoutConfiguration): string {
-  if(c.id==='chelsea-standard-v1')return 'Chelsea · 30-minute EMOM';
+  if(c.id==='chelsea-standard-v2')return 'Chelsea · EMOM → AMRAP';
+  if(c.id==='chelsea-standard-v1')return 'Chelsea · Legacy EMOM';
+  if(c.id.startsWith('chelsea-'))return 'Chelsea · Scaled/custom';
   if (configurationKey(c) === configurationKey(STANDARD_CINDY)) return 'Standard Cindy';
   return c.id === 'cindy-development-30s-v1' ? 'Development test · 30 sec' : `Custom Cindy · ${c.durationMs / 60_000} min cap`;
 }

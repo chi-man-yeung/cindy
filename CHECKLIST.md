@@ -91,3 +91,15 @@
 - [x] Both workout engines, icon and history schema remain unchanged.
 - [x] Full regression: 142 tests passed across 13 files; production build and TypeScript checks passed.
 - [ ] Physical iPhone card geometry and touch-flow review. Equal-grid layout is tested as a CSS contract, not actual browser geometry.
+
+## Chelsea original-benchmark scoring refinement (local, not deployed)
+- [x] Audit legacy fixed-EMOM engine and reps-only PB ranking.
+- [x] New versioned Chelsea configuration: EMOM until the first missed timestamp deadline, then AMRAP on the same 30-minute clock.
+- [x] Carry unfinished round through the transition; one tap records each subsequent complete round, with rapid-tap protection.
+- [x] Final 0–29 sequential partial reps; clean 30/30 has no partial/AMRAP credit.
+- [x] Persist on-time, post-transition and total rounds plus transition elapsed time; preserve timestamps and final partial reps.
+- [x] PB comparison: consecutive on-time rounds, then total rounds, then partial reps; exact configuration isolation including scaled/custom IDs.
+- [x] Preserve legacy record IDs/scores, active legacy sessions and legacy PB group without rewriting the database.
+- [x] Extend current history/backup validation and display without changing the database schema.
+- [x] Final regression: 157 tests passed across 14 files; production build and TypeScript checks passed.
+- [x] No deployment or push authorized/performed for this refinement.

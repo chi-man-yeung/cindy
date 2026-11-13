@@ -26,7 +26,10 @@ Open http://localhost:3001 online once and wait for Offline shell ready. Desktop
 
 - Results: pull-ups first, then push-ups, then squats; all 30 convert to a round without an invented timestamp.
 - History: saved notes, per-round splits, individual confirmed deletion, configuration-specific PB/chart and merge-only JSON backups. Existing/deleted IDs are never silently overwritten/restored on this device.
-- Chelsea: minute 1–30, per-minute countdown, on-time completion, explicit incomplete, missed minutes, pause/resume, deadline and saved minute ledger. Scores count only on-time completed minutes. Cindy records remain separate.
+- Chelsea: minute 1–30, per-minute countdown, on-time completion, explicit incomplete, missed minutes, pause/resume, deadline and saved minute ledger. Current Chelsea switches to AMRAP at the first missed minute deadline. PB ranks consecutive on-time rounds, then total completed rounds, then partial reps. Legacy EMOM records stay separate and unchanged. Cindy records remain separate.
 - Installed PWA: navy C monogram, standalone launch, initial online asset caching, offline workout and safe update behavior. Close all app windows to activate an installed update.
 
 See [RELEASE_REPORT.md](RELEASE_REPORT.md) for tests, known limits, manual iPhone checks and deployment steps, and [CHECKLIST.md](CHECKLIST.md) for verification results. Earlier phase review documents are historical.
+
+
+Latest local refinement: Chelsea standard v2 now follows EMOM → AMRAP benchmark scoring. See the final section of RELEASE_REPORT.md. This refinement has not been deployed.

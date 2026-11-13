@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import {expect,it} from 'vitest';
-import {CHELSEA,advanceChelsea,transitionChelsea} from '../lib/workout/chelsea';
+import {CHELSEA_LEGACY as CHELSEA,advanceChelsea,transitionChelsea} from '../lib/workout/chelsea';
 import {createWorkout,STANDARD_CINDY} from '../lib/workout/engine';
 import {validateSession} from '../lib/workout/validation';
 import {recordFromSession,validateSavedWorkout} from '../lib/history/model';

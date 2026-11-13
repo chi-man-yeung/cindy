@@ -1,4 +1,4 @@
-import type {ChelseaMinute} from './chelsea';
+import type {ChelseaMinute,ChelseaScore} from './chelsea';
 /** Pure workout state machine. All times are milliseconds; no timer depends on tick counts. */
 export type WorkoutStatus = 'idle' | 'preparing' | 'running' | 'paused' | 'completed' | 'saved';
 export interface WorkoutConfiguration {
@@ -26,6 +26,7 @@ export interface PauseDuration { startedAt: number; endedAt: number }
 /** Stable IDs/configuration are also the foundation for Phase 3 history/import/deletion. */
 export interface WorkoutSession {
   chelseaMinutes?: ChelseaMinute[];
+  chelseaScore?: ChelseaScore;
   schemaVersion: 1;
   id: string;
   date: string;

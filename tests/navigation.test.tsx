@@ -10,7 +10,7 @@ import {listSavedWorkouts,saveCompletedWorkout} from '../lib/history/repository'
 import {clearTestData,completed,BASE} from './history-fixtures';
 let clock:ReturnType<typeof vi.spyOn>;
 beforeEach(async()=>{await clearTestData();clock=vi.spyOn(Date,'now').mockReturnValue(BASE);vi.spyOn(window,'scrollTo').mockImplementation(()=>{});HTMLDialogElement.prototype.showModal=function(){this.setAttribute('open','')}});
-afterEach(()=>{cleanup();vi.restoreAllMocks()});
+afterEach(async()=>{await waitFor(()=>expect(screen.queryByText('Retaining changes on this device…')).toBeNull());cleanup();vi.restoreAllMocks()});
 async function boot(){render(<Home/>);await waitFor(()=>expect((screen.getByRole('button',{name:'Start Cindy Workout'}) as HTMLButtonElement).disabled).toBe(false))}
 async function at(t:number){clock.mockReturnValue(t);await act(async()=>{window.dispatchEvent(new Event('pageshow'))})}
 it('uses equal grid tracks and balanced stretching cards (CSS contract, not device geometry)',()=>{
