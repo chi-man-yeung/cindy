@@ -97,3 +97,7 @@ select:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 .workout-empty h1{font-size:36px;letter-spacing:-1px;margin:16px 0}
 .workout-empty .primary{margin-top:24px}
 @media(max-width:380px){.mode-cards{gap:8px}.mode-card{padding:16px 10px}.mode-format{font-size:10px}}
+/* Shared intrinsic row reserves both modes' wrapping, including enlarged text. */
+.overview-subtitle{display:grid}
+.overview-subtitle p{grid-area:1 / 1;min-block-size:3.2em;display:flex;align-items:center}
+.overview-subtitle p[aria-hidden=true]{visibility:hidden;pointer-events:none}
