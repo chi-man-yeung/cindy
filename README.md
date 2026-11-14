@@ -1,34 +1,41 @@
-# CINDY
+# CINDY — Phase 6.1 local candidate
 
-Phase 1 design prototype built with Next.js App Router, TypeScript, Tailwind CSS, Lucide, and Recharts.
+Latest local work adds Custom EMOM training, reusable presets with JSON backup/restore and training-only Completed Volume statistics. Cindy and Chelsea retain their existing engines. No Phase 6 deployment has been performed.
 
-## Run
+Download `cindy-phase61.zip`, extract it and follow [PHASE_6_REVIEW.md](PHASE_6_REVIEW.md) for current MacBook commands, automated offline-browser tests, migration details and remaining iPhone checks. Historical release instructions below refer to earlier archives.
+
+# CINDY — local release candidate
+
+Approved white/navy Cindy tracker with exercise-aware partial rounds, local history/backup, iPhone PWA assets and separate Chelsea 30-minute EMOM mode. Nothing has been deployed for this release.
+
+## MacBook
+
+Download `cindy-release.zip` from the chat, then with Node.js 24:
 
 ```sh
-npm install
-npm run dev
+mkdir -p ~/Projects
+unzip ~/Downloads/cindy-release.zip -d ~/Projects
+cd ~/Projects/cindy-release && npm ci && npm test && npm run build && npm run dev
 ```
 
-Open http://localhost:3000. Validation: `npm run build` and `npm run typecheck`.
+Open http://localhost:3000. Cindy is the default. Use the workout selector for Chelsea. The optional 30-second development mode applies only to Cindy. Chelsea uses its actual 30-minute schedule; automated tests advance the timestamp clock without waiting 30 minutes.
 
-## Review flow
+Stop dev with Control-C. For production/PWA checks use a **different origin/port** so a previously installed service worker cannot obscure development changes:
 
-Overview → Start workout → test round/undo/pause/resume → Finish → add partial reps and effort → Save placeholder. Open History and expand a session for illustrative splits.
+```sh
+npm run build && npm start -- --port 3001
+```
 
-All history and timer values are fixtures. Workout controls only update in-memory presentation state. Refresh resets the prototype. Saving deliberately displays a Phase 3 notice. No real workout engine, storage, authentication, tracking, PWA caching, or deployment has been implemented.
+Open http://localhost:3001 online once and wait for Offline shell ready. Desktop localhost supports service workers; an iPhone accessing your Mac over plain LAN HTTP does not. Use an approved HTTPS test environment for physical installation checks. Keep using the same origin/profile to retain local records. Never clear IndexedDB to update the application.
 
-`components/` contains reusable presentation components; `lib/mock-data.ts` contains fixtures. Engine and persistence modules will be introduced after Phase 1 review. Vitest includes one passing server-render smoke test (`npm test`). Playwright is installed for later browser coverage; no engine or end-to-end tests exist yet. Dev/build use Webpack because this environment blocks Turbopack internal port binding.
+## What to review
 
-Verified: production build with Webpack, TypeScript validation, and the server-render smoke test. Browser and iPhone Safari interaction/layout validation remain pending because the required managed browser tool is unavailable.
+- Results: pull-ups first, then push-ups, then squats; all 30 convert to a round without an invented timestamp.
+- History: saved notes, per-round splits, individual confirmed deletion, configuration-specific PB/chart and merge-only JSON backups. Existing/deleted IDs are never silently overwritten/restored on this device.
+- Chelsea: minute 1–30, per-minute countdown, on-time completion, explicit incomplete, missed minutes, pause/resume, deadline and saved minute ledger. Current Chelsea switches to AMRAP at the first missed minute deadline. PB ranks consecutive on-time rounds, then total completed rounds, then partial reps. Legacy EMOM records stay separate and unchanged. Cindy records remain separate.
+- Installed PWA: navy C monogram, standalone launch, initial online asset caching, offline workout and safe update behavior. Close all app windows to activate an installed update.
 
-See [CHECKLIST.md](CHECKLIST.md) for progress and verification status.
+See [RELEASE_REPORT.md](RELEASE_REPORT.md) for tests, known limits, manual iPhone checks and deployment steps, and [CHECKLIST.md](CHECKLIST.md) for verification results. Earlier phase review documents are historical.
 
-## White and navy design revision
 
-All four screens use white (#FFFFFF), navy (#142D4E), pale blue (#EAF1F8), and slate (#64748B). Primary controls use white text on navy. Small copy on pale-blue cards uses navy to meet contrast requirements. The chart, tooltip, inputs, native dialog, and mobile navigation share the same tokens. Safe-area spacing and `viewport-fit=cover` prepare the layout for iPhone display cutouts; installation and offline support remain scheduled for Phase 4.
-
-## GitHub and Vercel
-
-Source repository: https://github.com/chi-man-yeung/cindy
-
-To deploy, import this repository in Vercel. Select Next.js, repository root (`.`), build command `npm run build`, install command `npm ci`, and the default Next.js output directory. Use Node.js 24.x. No environment variables are required by this prototype. Set the production branch to `main`.
+Latest local refinement: Chelsea standard v2 now follows EMOM → AMRAP benchmark scoring. See the final section of RELEASE_REPORT.md. This refinement has not been deployed.

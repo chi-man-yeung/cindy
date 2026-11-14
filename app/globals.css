@@ -32,3 +32,88 @@ textarea,.stepper{background:var(--bg)}
 .panel,.recent-row,.history-item{background:var(--bg)}
 .pb-card,.readiness,.history-stats{--muted:var(--text)}
 .session-icon{color:var(--text)}
+.workout-options{margin:0 0 18px;border-top:1px solid var(--line);padding-top:10px}
+.workout-options label{display:flex;align-items:center;gap:10px;min-height:44px;font-size:12px;cursor:pointer}
+.workout-options input{accent-color:var(--accent);width:20px;height:20px;flex-shrink:0}
+.workout-options label span{font-size:10px;color:var(--muted);margin-left:auto}
+.storage-message{padding:12px 16px;border:1px solid var(--control-border);border-radius:10px;background:var(--surface);color:var(--text);font-size:12px;margin-top:16px}
+.retention-status{font-size:11px;color:var(--muted);margin-top:12px;min-height:18px}
+.history-filter{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:20px}
+.history-filter label{font-size:12px;font-weight:600}
+.history-filter select{min-height:44px;max-width:65%;border:1px solid var(--control-border);border-radius:10px;background:var(--bg);color:var(--text);font:inherit;font-size:13px;padding:10px}
+.history-metrics{grid-template-columns:repeat(4,1fr);margin-bottom:10px}
+.history-metrics .stat-value{font-size:36px}
+.analytics-caption{margin-bottom:24px}
+.empty-state{padding:30px 22px;color:var(--muted);font-size:13px;line-height:1.7;margin-top:15px}
+.empty-state h3{color:var(--text);margin:0 0 10px}
+.back-link{margin-top:20px;min-height:44px}
+.round-splits{list-style:none;padding:0;margin:20px 0}
+.round-splits li{display:grid;grid-template-columns:1fr auto;gap:8px;border-top:1px solid var(--line);padding:14px 0;font-size:12px}
+.round-splits li>span:last-child{grid-column:1/-1;font-size:10px;color:var(--muted)}
+.round-splits strong{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.delete-record{display:flex;align-items:center;gap:8px;min-height:44px;margin-top:24px;font-size:12px;text-decoration:underline;text-underline-offset:4px}
+.backup-panel{margin-top:32px}
+.backup-panel>.muted{margin:15px 0}
+.backup-actions{display:flex;gap:12px;flex-wrap:wrap}
+.backup-actions button{border:1px solid var(--control-border);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:8px;font-size:12px;min-height:44px}
+.import-preview,.import-report{border-top:1px solid var(--line);margin-top:20px;padding-top:18px;font-size:12px;line-height:1.7;overflow-wrap:anywhere}
+.import-preview .primary{margin-top:15px}
+.import-preview .text-button{margin-top:8px}
+.backup-panel details{margin-top:12px}
+.backup-panel summary{cursor:pointer;min-height:44px;align-content:center}
+.backup-panel ul{list-style:disc;padding-left:20px}
+select:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+@media(max-width:600px){
+ .history-metrics{grid-template-columns:repeat(2,1fr);row-gap:22px}
+ .history-metrics>.stat:nth-child(3){border-left:0}
+ .history-metrics .eyebrow{font-size:9px;min-height:auto}
+ .history-metrics .stat-value{font-size:32px}
+ .history-filter{align-items:flex-start;flex-direction:column;gap:10px}
+ .history-filter select{max-width:100%;width:100%;font-size:16px}
+ .history-row .recent-name{min-width:0;flex:1}
+ .history-row .recent-name b{font-size:11px;flex-wrap:wrap}
+ .history-row .recent-name>span{line-height:1.6}
+ .history-score{flex-shrink:0}
+ .history-score b{font-size:18px}
+ .history-score small{display:block;font-size:9px;margin-top:4px}
+}
+@media(max-width:600px){
+ .recent-row .recent-name{min-width:0;flex:1}
+ .recent-row .recent-name>span{line-height:1.6;white-space:normal}
+ .recent-row .recent-score{flex-shrink:0;font-size:20px}
+ .recent-row .recent-score>span{max-width:95px;line-height:1.6}
+}
+.workout-options input[type=number]{width:80px;min-height:44px;border:1px solid var(--control-border);border-radius:8px;background:var(--bg);color:var(--text);padding:8px;font:inherit;font-size:16px;margin-left:auto}
+.backup-actions button[aria-pressed=true]{background:var(--accent);color:var(--on-primary)}
+.mode-selector{border:0;padding:0;margin:24px 0}
+.mode-selector legend{font-size:12px;font-weight:600;margin-bottom:12px}
+.mode-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch}
+.mode-card{display:flex;flex-direction:column;align-items:flex-start;gap:12px;text-align:left;border:1px solid var(--control-border);border-radius:12px;padding:18px 14px;min-width:0;background:var(--bg);color:var(--text)}
+.mode-card[aria-pressed=true]{background:var(--accent);color:var(--on-primary);border-color:var(--accent)}
+.mode-name{font-size:20px;font-weight:750;letter-spacing:.5px}
+.mode-format{font-size:11px;font-weight:650;white-space:nowrap}
+.mode-exercises{font-size:12px;line-height:1.7}
+.mode-selected{display:flex;align-items:center;gap:6px;font-size:11px;margin-top:auto;min-height:20px}
+.workout-empty h1{font-size:36px;letter-spacing:-1px;margin:16px 0}
+.workout-empty .primary{margin-top:24px}
+@media(max-width:380px){.mode-cards{gap:8px}.mode-card{padding:16px 10px}.mode-format{font-size:10px}}
+/* Shared intrinsic row reserves both modes' wrapping, including enlarged text. */
+.overview-subtitle{display:grid}
+.overview-subtitle p{grid-area:1 / 1;min-block-size:3.2em;display:flex;align-items:center}
+.overview-subtitle p[aria-hidden=true]{visibility:hidden;pointer-events:none}
+.custom-choice{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;gap:8px}
+.custom-choice .mode-name{font-size:17px}
+.custom-choice .mode-exercises{grid-column:1}
+.custom-choice .mode-selected{grid-column:2;grid-row:2}
+.custom-setup{border:0;border-top:1px solid var(--line);padding:20px 0;margin:20px 0}
+.custom-setup legend{font-size:18px;font-weight:600}
+.custom-setup label{display:flex;flex-direction:column;gap:8px;font-size:12px;min-width:0;margin:12px 0}
+.custom-setup input,.custom-setup select{min-height:44px;width:100%;min-width:0;border:1px solid var(--control-border);border-radius:8px;background:var(--bg);color:var(--text);padding:9px;font:inherit;font-size:16px}
+.setup-timing{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.setup-exercises{list-style:none;padding:0;margin:15px 0}
+.setup-exercises li{display:grid;grid-template-columns:minmax(0,1fr) 70px;column-gap:12px;border-top:1px solid var(--line)}
+.exercise-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:8px}
+.exercise-actions button{display:grid;place-items:center;width:44px}
+.training-summary{font-size:12px;line-height:1.7;background:var(--surface);padding:16px;border-radius:10px;margin:18px 0}
+.complete-round small{overflow-wrap:anywhere}
+@media(max-width:600px){.custom-movements{display:block}.custom-movements p{font-size:13px;padding:10px 0}}
