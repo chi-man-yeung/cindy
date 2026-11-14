@@ -72,3 +72,10 @@ Final verification for Chelsea refinement: **157 tests passed across 14 files**,
 A separate targeted-training mode adds configurable fixed intervals and exercise prescriptions, named presets, timestamp-derived completion/miss tracking, early/incomplete saving and training-only history/volume statistics. Cindy and Chelsea engine behavior is unchanged. IndexedDB v3 adds a preset store without resetting records. Older workout backups remain supported; custom-containing exports use version 2 to prevent old readers losing the interval metadata. No training records are ranked as benchmarks.
 
 Verification: 189 automated tests passed, production build/TypeScript passed, mobile Chromium bounds/target checks passed at 320–430 px, and isolated offline browser tests passed for preset reuse, startup, refresh recovery, deadline resolution and saving. See PHASE_6_REVIEW.md for exact semantics, file changes, data limits, backup/preset limitations, MacBook commands and remaining physical iPhone checks.
+
+## Phase 6.1 — Release polish (local only)
+
+Preset-inclusive version-3 JSON backups, version-1/2 import compatibility, strict validation, duplicate/conflict reporting and atomic merge without overwrites.
+Completed Volume terminology explains successful intervals only; calculation and workout engines unchanged.
+194 tests across 18 files, production build/TypeScript and mobile/offline Chromium workflows passed. Preset export, restore, refresh reuse and duplicate/conflict protection verified.
+Physical iPhone Safari/Home Screen PWA review remains manual. No push or deployment; release awaits approval.

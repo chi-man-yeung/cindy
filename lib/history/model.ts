@@ -92,4 +92,4 @@ export function configurationLabel(c: WorkoutConfiguration): string {
   return c.id === 'cindy-development-30s-v1' ? 'Development test · 30 sec' : `Custom Cindy · ${c.durationMs / 60_000} min cap`;
 }
 export const formatSessionDate = (date:string) => new Date(date).toLocaleString(undefined,{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-export const scoreLabel = (r:SavedWorkout) => isCustomEmom(r.configuration)?`${r.completedRounds} of ${r.customIntervals!.length} intervals · ${r.totalReps} recorded reps`:`${r.completedRounds} rounds + ${r.partialReps} reps · ${r.totalReps} total reps`;
+export const scoreLabel = (r:SavedWorkout) => isCustomEmom(r.configuration)?`${r.completedRounds} of ${r.customIntervals!.length} intervals · Completed Volume: ${r.totalReps} reps`:`${r.completedRounds} rounds + ${r.partialReps} reps · ${r.totalReps} total reps`;

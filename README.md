@@ -1,8 +1,8 @@
-# CINDY — Phase 6 local candidate
+# CINDY — Phase 6.1 local candidate
 
-Latest local work adds Custom EMOM training, reusable presets and training-only history/volume statistics. Cindy and Chelsea retain their existing engines. No Phase 6 deployment has been performed.
+Latest local work adds Custom EMOM training, reusable presets with JSON backup/restore and training-only Completed Volume statistics. Cindy and Chelsea retain their existing engines. No Phase 6 deployment has been performed.
 
-Download `cindy-phase6.zip`, extract it and follow [PHASE_6_REVIEW.md](PHASE_6_REVIEW.md) for current MacBook commands, automated offline-browser tests, migration details and remaining iPhone checks. Historical release instructions below refer to earlier archives.
+Download `cindy-phase61.zip`, extract it and follow [PHASE_6_REVIEW.md](PHASE_6_REVIEW.md) for current MacBook commands, automated offline-browser tests, migration details and remaining iPhone checks. Historical release instructions below refer to earlier archives.
 
 # CINDY — local release candidate
 

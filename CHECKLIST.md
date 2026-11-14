@@ -119,3 +119,10 @@
 - [x] Repeatable browser runner and MacBook instructions prepared.
 - [ ] Physical iPhone Safari, installed-PWA keyboard/text scaling/audio/suspension/restart/update checks.
 - [x] No new dependencies; no push or deployment. Production remains on the approved Phase 5.3 release.
+
+## Phase 6.1 — Release polish (local only)
+
+- [x] Preset-inclusive version-3 JSON backups, version-1/2 import compatibility, strict validation, duplicate/conflict reporting and atomic merge without overwrites.
+- [x] Completed Volume terminology explains successful intervals only; calculation and workout engines unchanged.
+- [x] 194 tests across 18 files, production build/TypeScript and mobile/offline Chromium workflows passed. Preset export, restore, refresh reuse and duplicate/conflict protection verified.
+- [ ] Physical iPhone Safari/Home Screen PWA review remains manual. No push or deployment; release awaits approval.

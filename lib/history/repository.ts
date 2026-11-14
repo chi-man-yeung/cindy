@@ -1,3 +1,4 @@
+import {validatePreset} from '../workout/presets';
 import { openWorkoutDatabase } from '../workout/storage';
 import type { WorkoutSession } from '../workout/engine';
 import { newestFirst } from './analytics';
@@ -79,17 +80,26 @@ export async function deleteWorkout(id:string):Promise<void> {
 export async function mergeBackup(parsed:ParsedBackup):Promise<ImportReport> {
  // Validate again at the write boundary, even for an already previewed object.
  const candidates=parsed.records.map(validateSavedWorkout);
+ const presetCandidates=parsed.presets.map(validatePreset);
  const db=await openWorkoutDatabase();
  return new Promise((resolve,reject)=>{
-  const tx=db.transaction([SESSIONS,DELETED],'readwrite');const store=tx.objectStore(SESSIONS);
-  const report:ImportReport={imported:0,duplicates:parsed.duplicates,conflicts:parsed.conflicts,deleted:0,rejected:parsed.rejected,issues:[...parsed.issues]};
+  const tx=db.transaction([SESSIONS,DELETED,'presets'],'readwrite');const store=tx.objectStore(SESSIONS);
+  const report:ImportReport={presets:{...parsed.presetReport},imported:0,duplicates:parsed.duplicates,conflicts:parsed.conflicts,deleted:0,rejected:parsed.rejected,issues:[...parsed.issues]};
   let failure:Error|null=null;
-  const records=store.getAll();const deleted=tx.objectStore(DELETED).getAllKeys();let ready=0;
+  const records=store.getAll();const deleted=tx.objectStore(DELETED).getAllKeys();const presetStore=tx.objectStore('presets');const presets=presetStore.getAll();let ready=0;
   const apply=()=>{
-   if(++ready!==2)return;
+   if(++ready!==3)return;
    try {
     const existing=new Map(records.result.map(value=>{const r=validateSavedWorkout(value);return [r.id,r]}));
     const deletedIds=new Set(deleted.result);
+    const existingPresets=new Map(presets.result.map(value=>{const p=validatePreset(value);return [p.id,p]}));
+    for(const preset of presetCandidates){
+     const previous=existingPresets.get(preset.id);
+     if(previous){
+      if(JSON.stringify(previous)===JSON.stringify(preset))report.presets.duplicates++;
+      else {report.presets.conflicts++;report.issues.push(`Preset ID ${preset.id}: existing preset kept; backup version skipped.`)}
+     }else {presetStore.add(preset,preset.id);existingPresets.set(preset.id,preset);report.presets.imported++}
+    }
     for(const record of candidates){
      if(deletedIds.has(record.id)){report.deleted++;continue}
      const previous=existing.get(record.id);
@@ -100,7 +110,7 @@ export async function mergeBackup(parsed:ParsedBackup):Promise<ImportReport> {
     }
    }catch(error){failure=error as Error;tx.abort()}
   };
-  records.onsuccess=apply;deleted.onsuccess=apply;
+  records.onsuccess=apply;deleted.onsuccess=apply;presets.onsuccess=apply;
   tx.oncomplete=()=>resolve(report);tx.onerror=tx.onabort=()=>reject(failure??tx.error??new Error('Import failed; no records were changed.'));
  });
 }

@@ -1,4 +1,5 @@
 'use client';
+import {listPresets} from '../workout/presets';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { SavedWorkout } from './model';
 import { deleteWorkout, listSavedWorkouts, mergeBackup, updateWorkoutNotes } from './repository';
@@ -17,6 +18,6 @@ export function useHistory(){
  const remove=async(id:string)=>{await deleteWorkout(id);await refresh()};
  const editNotes=async(id:string,notes:string)=>{await updateWorkoutNotes(id,notes);await refresh()};
  const restore=async(parsed:ParsedBackup)=>{const report=await mergeBackup(parsed);await refresh();return report};
- const backup=async()=>exportBackup(await listSavedWorkouts());
+ const backup=async()=>{const [sessions,presets]=await Promise.all([listSavedWorkouts(),listPresets()]);return exportBackup(sessions,Date.now(),presets)};
  return {records,loading,error,refresh,remove,editNotes,restore,backup};
 }

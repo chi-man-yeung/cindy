@@ -1,4 +1,4 @@
-# Phase 6 — Custom EMOM training (local only)
+# Phase 6.1 — Custom EMOM release candidate (local only)
 
 ## Behavior
 
@@ -22,16 +22,17 @@ The IndexedDB version increases **2 → 3**, adding only a `presets` store. Exis
 
 ## Backup compatibility
 
-The app continues reading version-1 workout backups. Benchmark-only exports remain version 1. Exports containing Custom EMOM use a **version-2 envelope**, with all saved workouts included. This prevents an older app from silently dropping training fields. Phase 6 reads both versions, preserving existing merge-only duplicate/conflict/deleted-ID behavior.
+The app continues reading version-1 workout backups. Exports without presets remain version 1 (benchmarks only) or version 2 (with Custom EMOM). Exports containing presets use a **version-3 envelope**, including all saved workouts and presets. Phase 6.1 reads versions 1, 2 and 3. This prevents an older app from silently dropping training fields. Existing merge-only duplicate/conflict/deleted-ID behavior remains intact.
 
-The saved-record schema remains version 1 with optional typed training fields; custom configurations/intervals receive strict runtime validation. Presets are device-local and **not included in workout JSON exports**. Saved workout configurations are included, but preset names/library must be recreated if browser storage is lost. Custom EMOM backups require the Phase 6 app; production has not been updated yet.
+The saved-record schema remains version 1 with optional typed training fields; custom configurations/intervals receive strict runtime validation. Presets are included in JSON exports, preserving their IDs, names, configurations and timestamps. Imports validate presets and merge new IDs only. Identical IDs are skipped; conflicting IDs keep the existing local preset and are reported. Same-name presets with distinct IDs are retained. Preset-only backups can be imported. Malformed entries are rejected individually and reported. Workout and preset writes commit atomically; a write failure rolls back the entire merge. Older files without presets leave the preset library unchanged. Version-3 backups require Phase 6.1; production has not been updated yet.
 
 ## Verification
 
-- Full automated suite: **189 tests across 17 files passed**. The original 157 tests still pass.
+- Full automated suite: **194 tests across 18 files passed**. The original 157 tests still pass. Five additional tests cover preset backup round trips, duplicate/conflict handling, malformed presets, legacy backups, persistence after reopen and atomic rollback.
 - New tests cover setup limits/order, 60/90-second boundaries, duplicate/stale taps, misses/suspension, short final windows, exact expiry, early Finish, paused-time recovery, presets/reopen/update failure, history/notes/deletion, backup version 1/2, forged data, training exclusion from PBs, and v2→v3 migration preserving old active/saved/deleted data.
-- Production build and TypeScript checks pass.
+- Production build and TypeScript checks pass. The initial restricted-sandbox build could not parse the TypeScript subprocess output; rerunning with process permissions passed.
 - Chromium: 320/375/390/430 px viewports passed control bounds and 44px target checks.
+- Chromium preset backup export/restore, repeat import, conflict protection and post-refresh reuse passed in isolated profiles.
 - Chromium offline flow passed: install cached shell online → go offline → reload → reuse preset → start → complete interval → advance across missed windows → reload active workout → expire → save offline → view training analytics with no PB.
 - Source-level comparison confirmed all existing Cindy engine functions except the training-aware configuration-key helper remain identical; the complete Chelsea engine file is identical. Existing benchmark configuration keys are unchanged.
 
@@ -39,12 +40,12 @@ Physical iPhone Safari/Home Screen installation, native text sizing and keyboard
 
 ## MacBook instructions
 
-Use Node.js 24. Download `cindy-phase6.zip` from the chat, then:
+Use Node.js 24. Download `cindy-phase61.zip` from the chat, then:
 
 ```sh
 mkdir -p ~/Projects
-unzip ~/Downloads/cindy-phase6.zip -d ~/Projects
-cd ~/Projects/cindy-phase6 && npm ci && npm test && npm run build && npm run dev
+unzip ~/Downloads/cindy-phase61.zip -d ~/Projects
+cd ~/Projects/cindy-phase61 && npm ci && npm test && npm run build && npm run dev
 ```
 
 Open http://localhost:3000. Select Custom EMOM, enter the setup, save/reuse a preset, Start, then Finish and Save to check the flow quickly. History's configuration selector shows training-only statistics. Starting another workout after Save returns through Overview.
@@ -65,3 +66,7 @@ npm run test:custom-browser
 The runner defaults to http://127.0.0.1:3020 and uses isolated browser contexts, so it does not access your normal browser's records. Optional `CINDY_TEST_URL` overrides the URL and `CINDY_CHROMIUM_PATH` selects an installed executable. Results are written to `/tmp/cindy-custom-browser-results.json` by default. Offline use requires one successful online service-worker installation first; plain HTTP on an iPhone's LAN address is insufficient, so use an approved HTTPS test deployment for physical PWA review.
 
 No code has been pushed or deployed for Phase 6. The existing production deployment remains unchanged until approval.
+
+## Phase 6.1 terminology
+
+Training results, Overview totals, History and analytics use **Completed Volume**. Only successfully completed intervals contribute to recorded volume. Missed, incomplete and unstarted intervals add no volume. This is a wording change only; no timer, scoring, volume calculation or database migration was introduced in Phase 6.1.

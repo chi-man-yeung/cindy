@@ -31,6 +31,6 @@ it('starts once, recovers timing, saves early/incomplete training and shows no P
  fireEvent.click(screen.getByRole('button',{name:'Finish'}));fireEvent.click(screen.getByRole('button',{name:'FINISH WORKOUT'}));expect(screen.getByText('TRAINING SUMMARY')).toBeTruthy();expect(screen.queryByLabelText('Partial pull-ups')).toBeNull();
  fireEvent.click(screen.getByRole('button',{name:'SAVE WORKOUT'}));await waitFor(()=>expect(screen.getByText('Workout saved to history.')).toBeTruthy());const record=(await listSavedWorkouts())[0];expect(record.totalReps).toBe(15);expect(record.customIntervals![1].status).toBe('incomplete');
  fireEvent.click(screen.getAllByRole('button',{name:'History'})[0]);const select=screen.getByLabelText('Analytics configuration');const options=Array.from((select as HTMLSelectElement).options);fireEvent.change(select,{target:{value:options.find(o=>o.text.includes('Custom EMOM'))!.value}});
- expect(screen.getByText('COMPLETION RATE')).toBeTruthy();expect(screen.queryByText('PERSONAL BEST')).toBeNull();expect(screen.queryByLabelText('Personal best')).toBeNull();expect(screen.getByText('TOTAL VOLUME')).toBeTruthy();
+ expect(screen.getByText('COMPLETION RATE')).toBeTruthy();expect(screen.queryByText('PERSONAL BEST')).toBeNull();expect(screen.queryByLabelText('Personal best')).toBeNull();expect(screen.getByText('COMPLETED VOLUME')).toBeTruthy();
  fireEvent.click(screen.getByRole('button',{name:/Open Custom EMOM/}));expect(screen.getByText('Interval record')).toBeTruthy();expect(screen.getByText('Interval 2 · 1:00–2:00')).toBeTruthy();
 });
