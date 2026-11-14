@@ -1,3 +1,4 @@
+import type {CustomInterval} from './custom-emom';
 import type {ChelseaMinute,ChelseaScore} from './chelsea';
 /** Pure workout state machine. All times are milliseconds; no timer depends on tick counts. */
 export type WorkoutStatus = 'idle' | 'preparing' | 'running' | 'paused' | 'completed' | 'saved';
@@ -5,12 +6,9 @@ export interface WorkoutConfiguration {
   id: string;
   durationMs: number;
   preparationMs: 5000;
-  movements: readonly [
-    { name: 'pull-ups'; reps: 5 },
-    { name: 'push-ups'; reps: 10 },
-    { name: 'air-squats'; reps: 15 },
-  ];
-  repsPerRound: 30;
+  movements: readonly {name:string;reps:number}[];
+  repsPerRound: number;
+  training?:{kind:'custom-emom';intervalMs:60000|90000};
 }
 export const STANDARD_CINDY: WorkoutConfiguration = {
   id: 'cindy-standard-v1', durationMs: 20 * 60 * 1000, preparationMs: 5000,
@@ -25,6 +23,7 @@ export function developmentConfiguration(): WorkoutConfiguration {
 export interface PauseDuration { startedAt: number; endedAt: number }
 /** Stable IDs/configuration are also the foundation for Phase 3 history/import/deletion. */
 export interface WorkoutSession {
+  customIntervals?:CustomInterval[];
   chelseaMinutes?: ChelseaMinute[];
   chelseaScore?: ChelseaScore;
   schemaVersion: 1;
@@ -147,7 +146,7 @@ export function formatDuration(ms: number): string {
 }
 /** Configuration identity is structural: test/custom duration can never match standard PBs. */
 export function configurationKey(config: WorkoutConfiguration): string {
-  return JSON.stringify([config.id, config.durationMs, config.preparationMs, config.repsPerRound, config.movements.map(m => [m.name, m.reps])]);
+  return JSON.stringify([config.id, config.durationMs, config.preparationMs, config.repsPerRound, config.movements.map(m => [m.name, m.reps]),...(config.training?[config.training.kind,config.training.intervalMs]:[])]);
 }
 // Planned Phase 3 transport contract. Import will validate each session, skip existing IDs,
 // and report conflicting IDs without overwriting records; no import UI is enabled in Phase 2.

@@ -101,3 +101,19 @@ select:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 .overview-subtitle{display:grid}
 .overview-subtitle p{grid-area:1 / 1;min-block-size:3.2em;display:flex;align-items:center}
 .overview-subtitle p[aria-hidden=true]{visibility:hidden;pointer-events:none}
+.custom-choice{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;gap:8px}
+.custom-choice .mode-name{font-size:17px}
+.custom-choice .mode-exercises{grid-column:1}
+.custom-choice .mode-selected{grid-column:2;grid-row:2}
+.custom-setup{border:0;border-top:1px solid var(--line);padding:20px 0;margin:20px 0}
+.custom-setup legend{font-size:18px;font-weight:600}
+.custom-setup label{display:flex;flex-direction:column;gap:8px;font-size:12px;min-width:0;margin:12px 0}
+.custom-setup input,.custom-setup select{min-height:44px;width:100%;min-width:0;border:1px solid var(--control-border);border-radius:8px;background:var(--bg);color:var(--text);padding:9px;font:inherit;font-size:16px}
+.setup-timing{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.setup-exercises{list-style:none;padding:0;margin:15px 0}
+.setup-exercises li{display:grid;grid-template-columns:minmax(0,1fr) 70px;column-gap:12px;border-top:1px solid var(--line)}
+.exercise-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:8px}
+.exercise-actions button{display:grid;place-items:center;width:44px}
+.training-summary{font-size:12px;line-height:1.7;background:var(--surface);padding:16px;border-radius:10px;margin:18px 0}
+.complete-round small{overflow-wrap:anywhere}
+@media(max-width:600px){.custom-movements{display:block}.custom-movements p{font-size:13px;padding:10px 0}}

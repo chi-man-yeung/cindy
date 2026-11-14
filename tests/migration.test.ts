@@ -12,7 +12,7 @@ it('migrates a Phase 2 version-1 database without losing its active draft',async
   request.onsuccess=()=>{const db=request.result;const tx=db.transaction('active-session','readwrite');tx.objectStore('active-session').put(session,'current');tx.oncomplete=()=>{db.close();resolve()}};
  });
  expect(await loadActiveSession()).toEqual(session);
- expect((await openWorkoutDatabase()).version).toBe(2);
+ expect((await openWorkoutDatabase()).version).toBe(3);
  expect(await listSavedWorkouts()).toEqual([]);
  await saveCompletedWorkout(session);await closeWorkoutDatabase();
  expect((await listSavedWorkouts())[0].id).toBe('phase-two-draft');expect((await loadActiveSession())?.id).toBe('phase-two-draft');

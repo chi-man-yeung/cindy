@@ -1,10 +1,11 @@
+import {isCustomEmom} from '../workout/custom-config';
 import { validateSavedWorkout, type SavedWorkout } from './model';
 export const MAX_BACKUP_BYTES = 10 * 1024 * 1024;
-export interface HistoryBackup {schemaVersion:1;exportedAt:string;sessions:SavedWorkout[]}
+export interface HistoryBackup {schemaVersion:1|2;exportedAt:string;sessions:SavedWorkout[]}
 export interface ParsedBackup {records:SavedWorkout[];rejected:number;duplicates:number;conflicts:number;issues:string[]}
 export interface ImportReport {imported:number;duplicates:number;conflicts:number;deleted:number;rejected:number;issues:string[]}
 export function exportBackup(records:readonly SavedWorkout[],now=Date.now()): string {
-  const data:HistoryBackup={schemaVersion:1,exportedAt:new Date(now).toISOString(),sessions:records.map(validateSavedWorkout)};
+  const data:HistoryBackup={schemaVersion:records.some(r=>isCustomEmom(r.configuration))?2:1,exportedAt:new Date(now).toISOString(),sessions:records.map(validateSavedWorkout)};
   return JSON.stringify(data,null,2);
 }
 export function parseBackup(text:string):ParsedBackup {
@@ -13,8 +14,8 @@ export function parseBackup(text:string):ParsedBackup {
   try {value=JSON.parse(text)} catch {throw new Error('This file is not valid JSON.');}
   if (!value || typeof value!=='object') throw new Error('Invalid backup envelope.');
   const data=value as HistoryBackup;
-  if (data.schemaVersion!==1 || typeof data.exportedAt!=='string' || !Number.isFinite(Date.parse(data.exportedAt)) ||
-      !Array.isArray(data.sessions) || data.sessions.length>10_000) throw new Error('Expected a version 1 CINDY backup with at most 10,000 sessions.');
+  if ((data.schemaVersion!==1&&data.schemaVersion!==2) || typeof data.exportedAt!=='string' || !Number.isFinite(Date.parse(data.exportedAt)) ||
+      !Array.isArray(data.sessions) || data.sessions.length>10_000) throw new Error('Expected a version 1 or 2 CINDY backup with at most 10,000 sessions.');
   const records=new Map<string,SavedWorkout>();const issues:string[]=[];
   let rejected=0,duplicates=0,conflicts=0;
   data.sessions.forEach((value,index)=>{

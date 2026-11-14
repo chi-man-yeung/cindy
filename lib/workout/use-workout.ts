@@ -3,6 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { advance, createWorkout, developmentConfiguration, preparationCue, STANDARD_CINDY, transition, type WorkoutEvent, type WorkoutSession } from './engine';
 import { clearFinishedDraft, loadActiveSession, persistActiveSession } from './storage';
 import {CHELSEA,isChelsea,advanceChelsea,transitionChelsea} from './chelsea';
+import {advanceCustom,transitionCustom} from './custom-emom';
+import {DEFAULT_CUSTOM,isCustomEmom} from './custom-config';
 import { WorkoutSounds } from './sounds';
 import { saveCompletedWorkout } from '../history/repository';
 
@@ -13,7 +15,8 @@ export function useWorkout() {
   const [storageError,setStorageError] = useState('');
   const [retaining,setRetaining] = useState(false);
   const [soundsEnabled,setSoundsEnabled] = useState(false);
-  const [mode,setMode]=useState<'cindy'|'chelsea'>('cindy');
+  const [mode,setMode]=useState<'cindy'|'chelsea'|'custom'>('cindy');
+  const [customConfig,setCustomConfig]=useState(DEFAULT_CUSTOM);
   const [testMode,setTestMode] = useState(false);
   const sounds = useRef<WorkoutSounds | null>(null);
   const queue = useRef(Promise.resolve());
@@ -35,7 +38,7 @@ export function useWorkout() {
   const dispatch = useCallback((event: WorkoutEvent) => {
     if (!current.current || current.current.status === 'saved' || historySave.current) return;
     // Synchronous ref update closes the gap between rapid events before React rerenders.
-    const next = (isChelsea(current.current)?transitionChelsea:transition)(current.current,event);
+    const next = (isCustomEmom(current.current.configuration)?transitionCustom:isChelsea(current.current)?transitionChelsea:transition)(current.current,event);
     current.current = next;
     setSession(next);
     save(next);
@@ -49,7 +52,7 @@ export function useWorkout() {
         return;
       }
       if(stored?.status==='saved'){await clearFinishedDraft(stored.id);if(cancelled)return;stored=null}
-      const recovered = stored ? (isChelsea(stored)?advanceChelsea:advance)(stored,Date.now()) : null;
+      const recovered = stored ? (isCustomEmom(stored.configuration)?advanceCustom:isChelsea(stored)?advanceChelsea:advance)(stored,Date.now()) : null;
       current.current = recovered;
       setSession(recovered);
       setReady(true);
@@ -63,7 +66,7 @@ export function useWorkout() {
     function refresh() {
       const previous = current.current;
       if (!previous || !['preparing','running','paused'].includes(previous.status)) return;
-      const next = (isChelsea(previous)?advanceChelsea:advance)(previous,Date.now());
+      const next = (isCustomEmom(previous.configuration)?advanceCustom:isChelsea(previous)?advanceChelsea:advance)(previous,Date.now());
       current.current = next;
       if (next.status !== 'paused' || previous.status !== 'paused') setSession(next);
       // Timing is derived from timestamps. Persist transitions, not every visual refresh.
@@ -100,17 +103,17 @@ export function useWorkout() {
       void sounds.current.unlock();
     }
     const now = Date.now();
-    const config = mode==='chelsea'?CHELSEA:process.env.NODE_ENV === 'development' && testMode ? developmentConfiguration() : STANDARD_CINDY;
+    const config = mode==='custom'?customConfig:mode==='chelsea'?CHELSEA:process.env.NODE_ENV === 'development' && testMode ? developmentConfiguration() : STANDARD_CINDY;
     const initial=createWorkout(crypto.randomUUID(),now,config);
-    const next = (mode==='chelsea'?transitionChelsea:transition)(initial,{type:'start',now});
+    const next = (mode==='custom'?transitionCustom:mode==='chelsea'?transitionChelsea:transition)(initial,{type:'start',now});
     current.current = next;
     setSession(next);
     save(next);
     return true;
-  },[ready,soundsEnabled,testMode,mode,save]);
+  },[ready,soundsEnabled,testMode,mode,customConfig,save]);
   const cancelPreparation = useCallback(() => {
     if (current.current?.status !== 'preparing') return;
-    const resolved = (isChelsea(current.current)?advanceChelsea:advance)(current.current,Date.now());
+    const resolved = (isCustomEmom(current.current.configuration)?advanceCustom:isChelsea(current.current)?advanceChelsea:advance)(current.current,Date.now());
     if (resolved.status !== 'preparing') {
       current.current = resolved; setSession(resolved); save(resolved); return;
     }
@@ -138,5 +141,5 @@ export function useWorkout() {
       current.current=null;setSession(null);save(null);
     }
   },[save]);
-  return { mode,setMode,session, ready, storageError, retaining, soundsEnabled, setSoundsEnabled, testMode, setTestMode, cue, start, dispatch, cancelPreparation, saveToHistory, historySaving, forgetSaved };
+  return { customConfig,setCustomConfig,mode,setMode,session, ready, storageError, retaining, soundsEnabled, setSoundsEnabled, testMode, setTestMode, cue, start, dispatch, cancelPreparation, saveToHistory, historySaving, forgetSaved };
 }

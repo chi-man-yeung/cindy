@@ -1,0 +1,27 @@
+'use client';
+import {useEffect,useState} from 'react';
+import {ArrowDown,ArrowUp,Plus,Trash2} from 'lucide-react';
+import {customConfiguration,exerciseLabel,TRAINING_EXERCISES} from '@/lib/workout/custom-config';
+import {listPresets,savePreset,type TrainingPreset} from '@/lib/workout/presets';
+import type {WorkoutConfiguration} from '@/lib/workout/engine';
+export default function CustomSetup({configuration,onChange,onValidity,disabled}:{configuration:WorkoutConfiguration;onChange:(c:WorkoutConfiguration)=>void;onValidity:(valid:boolean)=>void;disabled:boolean}){
+ const [minutes,setMinutes]=useState(configuration.durationMs/60000);const [interval,setInterval]=useState(configuration.training!.intervalMs/1000);
+ const [exercises,setExercises]=useState(configuration.movements.map(m=>({...m})));const [name,setName]=useState('');const [selected,setSelected]=useState('');
+ const [presets,setPresets]=useState<TrainingPreset[]>([]);const [message,setMessage]=useState('');const [busy,setBusy]=useState(false);
+ let valid:WorkoutConfiguration|null=null;let error='';try{valid=customConfiguration(minutes,interval,exercises)}catch(e){error=(e as Error).message}
+ const serialized=valid?JSON.stringify(valid):'';
+ useEffect(()=>{onValidity(!!serialized);if(serialized)onChange(JSON.parse(serialized))},[serialized,onChange,onValidity]);
+ useEffect(()=>{let alive=true;void listPresets().then(p=>{if(alive)setPresets(p)}).catch(()=>{if(alive)setMessage('Presets could not be loaded. Your records were not changed.')});return()=>{alive=false}},[]);
+ function move(index:number,offset:number){const copy=[...exercises];[copy[index],copy[index+offset]]=[copy[index+offset],copy[index]];setExercises(copy)}
+ return <fieldset className="custom-setup" disabled={disabled||busy}><legend>Custom EMOM setup</legend>
+  <label>Reuse preset<select aria-label="Reuse preset" value={selected} onChange={e=>{setSelected(e.target.value);const p=presets.find(p=>p.id===e.target.value);if(p){setName(p.name);setMinutes(p.configuration.durationMs/60000);setInterval(p.configuration.training!.intervalMs/1000);setExercises(p.configuration.movements.map(m=>({...m})))}else setName('')}}><option value="">New preset</option>{presets.map(p=><option value={p.id} key={p.id}>{p.name}</option>)}</select></label>
+  <div className="setup-timing"><label>Duration (minutes)<input aria-label="Duration (minutes)" type="number" min={5} max={30} step={1} value={minutes} onChange={e=>setMinutes(Number(e.target.value))}/></label><label>Interval (seconds)<select aria-label="Interval (seconds)" value={interval} onChange={e=>setInterval(Number(e.target.value))}><option value={60}>60 seconds</option><option value={90}>90 seconds</option></select></label></div>
+  <p className="small muted">Each interval contains every exercise below, in order. Lunges use total reps.</p>
+  <ol className="setup-exercises">{exercises.map((exercise,index)=><li key={index}><label>Exercise {index+1}<select aria-label={`Exercise ${index+1}`} value={exercise.name} onChange={e=>setExercises(exercises.map((m,i)=>i===index?{...m,name:e.target.value}:m))}>{TRAINING_EXERCISES.map(n=><option key={n} value={n}>{exerciseLabel(n)}</option>)}</select></label><label>Reps<input aria-label={`Reps for exercise ${index+1}`} type="number" min={1} max={1000} value={exercise.reps} onChange={e=>setExercises(exercises.map((m,i)=>i===index?{...m,reps:Number(e.target.value)}:m))}/></label><div className="exercise-actions"><button type="button" aria-label={`Move exercise ${index+1} up`} disabled={disabled||busy||index===0} onClick={()=>move(index,-1)}><ArrowUp size={16}/></button><button type="button" aria-label={`Move exercise ${index+1} down`} disabled={disabled||busy||index===exercises.length-1} onClick={()=>move(index,1)}><ArrowDown size={16}/></button><button type="button" aria-label={`Remove exercise ${index+1}`} onClick={()=>setExercises(exercises.filter((_,i)=>i!==index))}><Trash2 size={16}/></button></div></li>)}</ol>
+  <button type="button" className="text-button" disabled={disabled||busy||exercises.length>=12} onClick={()=>setExercises([...exercises,{name:'air-squats',reps:15}])}><Plus size={16}/>Add exercise</button>
+  {error&&<p role="alert" className="storage-message">{error}</p>}
+  {valid&&<section className="training-summary" aria-label="Workout summary"><strong>{minutes} minutes · {interval}-second intervals · {Math.ceil(valid.durationMs/valid.training!.intervalMs)} planned intervals</strong><p>{exercises.map(m=>`${m.reps} ${exerciseLabel(m.name)}`).join(' / ')} each interval · {valid.repsPerRound} reps per completed interval.</p>{valid.durationMs%valid.training!.intervalMs!==0&&<p>Final interval is {valid.durationMs%valid.training!.intervalMs/1000} seconds; the workout ends at {minutes} minutes.</p>}<p>Training only. No personal best or benchmark ranking.</p></section>}
+  <label>Preset name<input aria-label="Preset name" maxLength={80} value={name} onChange={e=>setName(e.target.value)}/></label>
+  <button className="text-button" type="button" disabled={disabled||busy||!valid||!name.trim()} onClick={()=>{if(!valid)return;setBusy(true);setMessage('');void savePreset(name,valid,selected||undefined).then(async p=>{setSelected(p.id);setPresets(await listPresets());setMessage('Preset saved on this device.')}).catch(()=>setMessage('Preset could not be saved.')).finally(()=>setBusy(false))}}>{selected?'Update preset':'Save preset'}</button>{message&&<p role="status" className="small muted">{message}</p>}
+ </fieldset>;
+}

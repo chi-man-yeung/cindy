@@ -103,3 +103,19 @@
 - [x] Extend current history/backup validation and display without changing the database schema.
 - [x] Final regression: 157 tests passed across 14 files; production build and TypeScript checks passed.
 - [x] No deployment or push authorized/performed for this refinement.
+
+## Phase 6 — Custom EMOM training (local, not deployed)
+- [x] User confirmed all configured exercises are performed each interval, in order.
+- [x] Third mode, validated 5–30 minute / 60–90 second setup, exercise add/remove/reorder and explicit pre-start summary.
+- [x] Device-local named presets with reuse and explicit update; immutable active-session configurations.
+- [x] Separate custom engine reusing timestamp clock/preparation and existing timer/control components.
+- [x] Interval ledger, missed deadlines, short final interval, duplicate/stale tap protection, early finish, pause/recovery and static targets.
+- [x] Save incomplete training; completion rate and confirmed full-interval volume; no PB or benchmark rankings.
+- [x] History/detail/notes/deletion and JSON round trips; version-1 imports preserved, version-2 exports protect custom metadata from old readers.
+- [x] Additive IndexedDB v3 preset store; prior active, saved and deletion records preserved in migration tests.
+- [x] All existing benchmark timing/scoring functions and the entire Chelsea engine preserved.
+- [x] 189 automated tests passed across 17 files; production build/TypeScript passed.
+- [x] Chromium mobile widths 320/375/390/430 and real offline shell/preset/start/recovery/save workflow passed in isolated profiles.
+- [x] Repeatable browser runner and MacBook instructions prepared.
+- [ ] Physical iPhone Safari, installed-PWA keyboard/text scaling/audio/suspension/restart/update checks.
+- [x] No new dependencies; no push or deployment. Production remains on the approved Phase 5.3 release.

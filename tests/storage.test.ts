@@ -38,7 +38,7 @@ describe('IndexedDB active-session storage',()=>{
   spy.mockRestore();await persistActiveSession(preparing());expect(await loadActiveSession()).not.toBeNull();
  });
  it('detects corrupt stored data without deleting it',async()=>{
-  const request=indexedDB.open('cindy-workouts',2);
+  const request=indexedDB.open('cindy-workouts',3);
   await new Promise<void>((resolve,reject)=>{
    request.onerror=()=>reject(request.error);
    request.onsuccess=()=>{

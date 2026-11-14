@@ -7,10 +7,10 @@ let connection: Promise<IDBDatabase> | null = null;
 export function openWorkoutDatabase(): Promise<IDBDatabase> {
   if (!connection) {
     connection = new Promise<IDBDatabase>((resolve,reject) => {
-      const request = indexedDB.open(DATABASE,2);
+      const request = indexedDB.open(DATABASE,3);
       request.onupgradeneeded = () => {
         const db = request.result;
-        for (const name of [STORE,'sessions','deleted-sessions']) {
+        for (const name of [STORE,'sessions','deleted-sessions','presets']) {
           if (!db.objectStoreNames.contains(name)) db.createObjectStore(name);
         }
       };

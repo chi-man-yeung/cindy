@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Download, Dumbbell, Trash2, Trophy, Upload, X } from 'lucide-react';
 import { Eyebrow, PrimaryButton, SectionTitle, Stat } from './ui';
 import ProgressChart from './progress-chart';
+import {isCustomEmom,exerciseLabel} from '@/lib/workout/custom-config';
+import {trainingSummary} from '@/lib/workout/custom-emom';
 import { breakdown } from '@/lib/workout/partials';
 import { analytics, bestByConfiguration, roundSplits } from '@/lib/history/analytics';
 import { configurationLabel, formatSessionDate, scoreLabel, type SavedWorkout } from '@/lib/history/model';
@@ -29,6 +31,8 @@ function WorkoutDetail({record,onBack,onDeleted,data}:{record:SavedWorkout;onBac
  const [deleting,setDeleting]=useState(false);const [error,setError]=useState('');
  useEffect(()=>{heading.current?.focus()},[]);
  const splits=roundSplits(record);
+ const custom=isCustomEmom(record.configuration);
+ const training=trainingSummary(record);
  const saveNotes=async()=>{
   setBusy(true);setMessage('');setError('');
   try{await data.editNotes(record.id,notes);setMessage('Notes saved on this device.')}
@@ -43,16 +47,16 @@ function WorkoutDetail({record,onBack,onDeleted,data}:{record:SavedWorkout;onBac
  return <>
   <button className="text-button back-link" disabled={busy} onClick={onBack}><ChevronLeft size={17}/>Back to history</button>
   <section className="sub-heading"><div><Eyebrow>{configurationLabel(record.configuration)}</Eyebrow><h1 ref={heading} tabIndex={-1}>Your session.</h1><p>{formatSessionDate(record.date)}</p></div><span className="pill">SAVED WORKOUT</span></section>
-  <div className="results-layout"><section className="panel results-card"><Eyebrow>YOUR SCORE</Eyebrow>{record.chelseaScore&&<p className="small muted">{record.chelseaScore.onTimeRounds}/30 on-time · {record.chelseaScore.postTransitionRounds} AMRAP rounds · {record.completedRounds} total rounds · {record.partialReps} partial reps{record.chelseaScore.onTimeRounds===30?' · Full Chelsea completion':''}</p>}<div className="result-score">{record.completedRounds}<span>rounds + {record.partialReps} reps</span></div>
+  <div className="results-layout"><section className="panel results-card"><Eyebrow>{custom?"TRAINING SUMMARY":"YOUR SCORE"}</Eyebrow>{record.chelseaScore&&<p className="small muted">{record.chelseaScore.onTimeRounds}/30 on-time · {record.chelseaScore.postTransitionRounds} AMRAP rounds · {record.completedRounds} total rounds · {record.partialReps} partial reps{record.chelseaScore.onTimeRounds===30?' · Full Chelsea completion':''}</p>}<div className="result-score">{record.completedRounds}<span>{custom?`of ${training.planned} intervals`:`rounds + ${record.partialReps} reps`}</span></div>
    <div className="result-stats"><Stat label="TOTAL REPS" value={record.totalReps}/><Stat label="ELAPSED DURATION" value={formatDuration(record.elapsedDurationMs)}/></div>
    <p className="small muted">{record.completionStatus==='expired'?'Time cap reached':'Finished early'} · {formatDuration(record.configuration.durationMs)} cap{record.perceivedEffort!==null?` · Effort ${record.perceivedEffort}/10`:''}</p>
-   <p className="small muted">Partial round: {breakdown(record.partialReps).pullUps} pull-ups · {breakdown(record.partialReps).pushUps} push-ups · {breakdown(record.partialReps).airSquats} squats</p>{record.chelseaMinutes&&<ol className="round-splits">{record.chelseaMinutes.filter(m=>!record.chelseaScore||record.chelseaScore.transitionElapsedMs===null||m.minute<=record.chelseaScore.transitionElapsedMs/60000).map(m=><li key={m.minute}>Minute {m.minute}<strong>{m.status}</strong></li>)}</ol>}<label className="notes-label" htmlFor="saved-notes">Session notes</label><textarea id="saved-notes" value={notes} maxLength={2000} rows={4} onChange={e=>setNotes(e.target.value)} disabled={busy}/>
+   {custom?<section className="training-summary"><p>{training.completionRate}% completion · {training.missed} missed · {training.incomplete} incomplete · {training.totalVolume} recorded reps</p><p>Each interval: {record.configuration.movements.map(m=>`${m.reps} ${exerciseLabel(m.name)}`).join(" / ")}</p><p>Recorded volume includes fully completed intervals only. No benchmark ranking.</p></section>:<p className="small muted">Partial round: {breakdown(record.partialReps).pullUps} pull-ups · {breakdown(record.partialReps).pushUps} push-ups · {breakdown(record.partialReps).airSquats} squats</p>}{record.chelseaMinutes&&<ol className="round-splits">{record.chelseaMinutes.filter(m=>!record.chelseaScore||record.chelseaScore.transitionElapsedMs===null||m.minute<=record.chelseaScore.transitionElapsedMs/60000).map(m=><li key={m.minute}>Minute {m.minute}<strong>{m.status}</strong></li>)}</ol>}<label className="notes-label" htmlFor="saved-notes">Session notes</label><textarea id="saved-notes" value={notes} maxLength={2000} rows={4} onChange={e=>setNotes(e.target.value)} disabled={busy}/>
    <PrimaryButton disabled={busy||notes===record.notes} onClick={()=>void saveNotes()}>SAVE NOTES</PrimaryButton>
    {message&&<p className="notice" role="status">{message}</p>}{error&&!deleting&&<p role="alert" className="storage-message">{error}</p>}
    <button className="delete-record" disabled={busy} onClick={()=>{setError('');setDeleting(true)}}><Trash2 size={17}/>Delete workout</button>
-  </section><aside className="panel"><SectionTitle title="Round splits" detail={`${record.completedRounds} ROUNDS`}/>
+  </section><aside className="panel">{custom?<><SectionTitle title="Interval record" detail={`${training.completed} / ${training.planned} COMPLETED`}/><ol className="round-splits">{record.customIntervals!.map(i=><li key={i.interval}><span>Interval {i.interval} · {formatDuration(i.startMs)}–{formatDuration(i.endMs)}</span><strong>{i.status}</strong><span>{i.completedAt===null?'No completed volume recorded':`${formatDuration(i.completedAt)} elapsed · ${record.configuration.repsPerRound} reps`}</span></li>)}</ol></>:<><SectionTitle title="Round splits" detail={`${record.completedRounds} ROUNDS`}/>
    {!splits.length?<p className="empty-state">No full rounds were recorded.</p>:<ol className="round-splits">{splits.map(split=><li key={split.round}><span>Round {split.round}</span><strong>{split.durationMs===null?'Unavailable':formatDuration(split.durationMs)}</strong><span>{split.elapsedMs===null?'No timestamp':`${formatDuration(split.elapsedMs)} elapsed`}</span></li>)}</ol>}
-   {splits.some(s=>s.durationMs===null)&&<p className="small muted">Missing timestamps are shown as unavailable; split times are never estimated.</p>}
+   {splits.some(s=>s.durationMs===null)&&<p className="small muted">Missing timestamps are shown as unavailable; split times are never estimated.</p>}</>}
   </aside></div>
   {deleting&&<DeleteDialog record={record} busy={busy} error={error} onCancel={()=>setDeleting(false)} onDelete={()=>void remove()}/>}
  </>;
@@ -67,6 +71,10 @@ export default function WorkoutHistory({data,onDeleted}:{data:HistoryData;onDele
  const configuration=configurations.get(configKey)??STANDARD_CINDY;
  const summary=useMemo(()=>analytics(data.records,configuration),[data.records,configuration]);
  const bests=useMemo(()=>bestByConfiguration(data.records),[data.records]);
+ const custom=isCustomEmom(configuration);
+ const trainingRecords=data.records.filter(r=>configurationKey(r.configuration)===configurationKey(configuration));
+ const planned=trainingRecords.reduce((sum,r)=>sum+(r.customIntervals?.length??0),0);
+ const completions=trainingRecords.reduce((sum,r)=>sum+r.completedRounds,0);
  const selected=data.records.find(r=>r.id===selectedId);
  const chooseFile=async(input:HTMLInputElement)=>{
   const upload=input.files?.[0];input.value='';setPending(null);setReport(null);setMessage('');
@@ -96,15 +104,15 @@ export default function WorkoutHistory({data,onDeleted}:{data:HistoryData;onDele
   <section className="sub-heading"><div><Eyebrow>THE WORK ADDS UP</Eyebrow><h1>Your <em>track record.</em></h1><p>Small gains. Stronger standards.</p></div><span className="pill">{data.records.length} SAVED SESSIONS</span></section>
   {data.error&&<p className="storage-message" role="alert">{data.error}</p>}
   <div className="history-filter"><label htmlFor="analytics-configuration">Analytics configuration</label><select id="analytics-configuration" value={configurationKey(configuration)} onChange={e=>setConfigKey(e.target.value)}>{[...configurations].map(([key,c])=><option key={key} value={key}>{configurationLabel(c)}</option>)}</select></div>
-  <div className="history-stats history-metrics"><Stat label="SESSIONS" value={summary.count}/><Stat label="LATEST SCORE" value={summary.latest?.totalReps??'—'} unit="reps"/><Stat label="PERSONAL BEST" value={summary.best?.chelseaScore?.onTimeRounds??summary.best?.totalReps??'—'} unit={summary.best?.chelseaScore?'on-time rounds':'reps'}/><Stat label="VS PREVIOUS" value={summary.delta===null?'—':`${summary.delta>0?'+':''}${summary.delta}`} unit="reps"/></div>
-  <p className="small muted analytics-caption">{configuration.id==='chelsea-standard-v2'?'Chelsea PB: consecutive on-time rounds, then total rounds, then partial reps.':'Statistics compare only identical configurations.'} Session history below includes every configuration.</p>
-  <section className="panel chart-panel"><SectionTitle title="Moving the benchmark" detail={`${configurationLabel(configuration).toUpperCase()} · TOTAL REPS`}/><ProgressChart data={summary.chart}/></section>
+  <div className="history-stats history-metrics"><Stat label="SESSIONS" value={summary.count}/><Stat label={custom?"LATEST VOLUME":"LATEST SCORE"} value={summary.latest?.totalReps??'—'} unit="reps"/>{custom?<><Stat label="COMPLETION RATE" value={planned?Math.round(completions/planned*100):0} unit="%"/><Stat label="TOTAL VOLUME" value={trainingRecords.reduce((sum,r)=>sum+r.totalReps,0)} unit="reps"/></>:<><Stat label="PERSONAL BEST" value={summary.best?.chelseaScore?.onTimeRounds??summary.best?.totalReps??'—'} unit={summary.best?.chelseaScore?'on-time rounds':'reps'}/><Stat label="VS PREVIOUS" value={summary.delta===null?'—':`${summary.delta>0?'+':''}${summary.delta}`} unit="reps"/></>}</div>
+  <p className="small muted analytics-caption">{custom?'Training only: completion rate is completed intervals / planned intervals. Volume counts completed intervals only. No PB or benchmark ranking.':configuration.id==='chelsea-standard-v2'?'Chelsea PB: consecutive on-time rounds, then total rounds, then partial reps.':'Statistics compare only identical configurations.'} Session history below includes every configuration.</p>
+  <section className="panel chart-panel"><SectionTitle title={custom?"Training volume":"Moving the benchmark"} detail={`${configurationLabel(configuration).toUpperCase()} · TOTAL REPS`}/><ProgressChart data={summary.chart}/></section>
   <section className="history-list"><SectionTitle title="Session history" detail="NEWEST FIRST · ALL CONFIGURATIONS"/>
    {data.loading?<p className="empty-state" role="status">Loading your history…</p>:!data.records.length?<div className="panel empty-state"><h3>Your first benchmark is ahead.</h3><p>Finish a workout and select Save workout. Your records and progress will appear here.</p></div>:data.records.map(record=>{
     const best=bests.get(configurationKey(record.configuration))?.id===record.id;
     return <div key={record.id} className="history-item"><button className="history-row" onClick={()=>{setSelectedId(record.id);setMessage('')}} aria-label={`Open ${configurationLabel(record.configuration)}, ${formatSessionDate(record.date)}, ${scoreLabel(record)}`}>
      <span className="session-icon"><Dumbbell size={19}/></span><span className="recent-name"><b>{configurationLabel(record.configuration)}{best&&<Trophy size={14} className="accent" aria-label="Personal best"/>}</b><span>{formatSessionDate(record.date)} · {formatDuration(record.elapsedDurationMs)}</span></span>
-     <span className="history-score"><b>{record.completedRounds} <small>rounds + {record.partialReps} reps</small></b><span>{record.totalReps} total reps</span></span><ChevronRight size={18}/>
+     <span className="history-score"><b>{record.completedRounds} <small>{isCustomEmom(record.configuration)?`/ ${record.customIntervals!.length} intervals`:`rounds + ${record.partialReps} reps`}</small></b><span>{record.totalReps} total reps</span></span><ChevronRight size={18}/>
     </button></div>;
    })}
   </section>

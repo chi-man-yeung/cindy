@@ -1,3 +1,5 @@
+import {validConfiguration,isCustomEmom} from './custom-config';
+import {validateCustom} from './custom-emom';
 import {validateChelsea} from './chelsea';
 import { elapsedTime, score, type WorkoutSession } from './engine';
 const finite = (n: unknown): n is number => typeof n === 'number' && Number.isFinite(n) && n >= 0;
@@ -12,17 +14,14 @@ export function validateSession(value: unknown): WorkoutSession {
       !finite(s.lastObservedAt) || s.lastObservedAt < s.createdAt ||
       !['idle','preparing','running','paused','completed','saved'].includes(s.status) ||
       !['active','expired','finished'].includes(s.completionStatus) ||
-      !c || typeof c.id !== 'string' || !c.id || !finite(c.durationMs) || c.durationMs < 1000 || c.durationMs > 86_400_000 ||
-      c.preparationMs !== 5000 || c.repsPerRound !== 30 ||
-      !Array.isArray(c.movements) || c.movements.length !== 3 ||
-      !c.movements.every((m,i) => m && m.name === ['pull-ups','push-ups','air-squats'][i] && m.reps === [5,10,15][i]) ||
+      !validConfiguration(c) ||
       !nullableTime(s.preparationStartedAt) || !nullableTime(s.startTime) || !nullableTime(s.endTime) ||
       !nullableTime(s.pausedAt) || !nullableTime(s.lastRoundTapAt) ||
       !finite(s.elapsedDurationMs) || s.elapsedDurationMs > c.durationMs ||
       !Array.isArray(s.pauseDurations) || !Array.isArray(s.completedRoundTimestamps) ||
       s.pauseDurations.length > 100_000 || s.completedRoundTimestamps.length > 100_000 ||
       !Number.isInteger(s.partialReps) || s.partialReps < 0 || s.partialReps > 29 ||
-      ![0,1].includes(s.additionalCompletedRounds??0) || s.totalReps !== score(s.completedRoundTimestamps.length+(s.additionalCompletedRounds??0), s.partialReps) ||
+      ![0,1].includes(s.additionalCompletedRounds??0) || s.totalReps !== (isCustomEmom(c)?s.completedRoundTimestamps.length*c.repsPerRound:score(s.completedRoundTimestamps.length+(s.additionalCompletedRounds??0), s.partialReps)) ||
       (s.perceivedEffort !== null && (!Number.isInteger(s.perceivedEffort) || s.perceivedEffort < 1 || s.perceivedEffort > 10)) ||
       typeof s.notes !== 'string' || s.notes.length > 2000) throw new Error('Invalid session schema.');
   const terminal = s.status === 'completed' || s.status === 'saved';
@@ -55,6 +54,7 @@ export function validateSession(value: unknown): WorkoutSession {
   if ((s.completedRoundTimestamps.length > 0 && s.lastRoundTapAt === null) ||
       (s.lastRoundTapAt !== null && (s.startTime === null || s.lastRoundTapAt < s.startTime || s.lastRoundTapAt > s.lastObservedAt)) ||
       (!terminal && s.partialReps !== 0)) throw new Error('Invalid round data.');
+  validateCustom(s);
   validateChelsea(s);
   return structuredClone(s);
 }
