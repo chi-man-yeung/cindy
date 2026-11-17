@@ -1,3 +1,7 @@
+# CINDY — bilingual interface candidate
+
+Adds an EN / 繁中 toggle with saved preference. See [CHINESE_LANGUAGE_REVIEW.md](CHINESE_LANGUAGE_REVIEW.md) for behavior, validation and local MacBook commands. This feature is not deployed.
+
 # CINDY — Phase 6.1 local candidate
 
 Latest local work adds Custom EMOM training, reusable presets with JSON backup/restore and training-only Completed Volume statistics. Cindy and Chelsea retain their existing engines. No Phase 6 deployment has been performed.

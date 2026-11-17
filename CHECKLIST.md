@@ -126,3 +126,12 @@
 - [x] Completed Volume terminology explains successful intervals only; calculation and workout engines unchanged.
 - [x] 194 tests across 18 files, production build/TypeScript and mobile/offline Chromium workflows passed. Preset export, restore, refresh reuse and duplicate/conflict protection verified.
 - [ ] Physical iPhone Safari/Home Screen PWA review remains manual. No push or deployment; release awaits approval.
+
+## English / Traditional Chinese language toggle
+
+- [x] Header EN / 繁中 control and saved device preference.
+- [x] Localized screens, confirmations, Custom EMOM setup, analytics, accessibility labels and PWA guidance.
+- [x] Workout logic, saved data, notes/preset names and JSON schemas unchanged.
+- [x] 200 automated tests, production build and bilingual/English mobile/offline workflows.
+- [ ] Physical iPhone Safari/PWA, VoiceOver and native text scaling review.
+- [x] Local feature branch only; no push or deployment.

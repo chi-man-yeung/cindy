@@ -117,3 +117,12 @@ select:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 .training-summary{font-size:12px;line-height:1.7;background:var(--surface);padding:16px;border-radius:10px;margin:18px 0}
 .complete-round small{overflow-wrap:anywhere}
 @media(max-width:600px){.custom-movements{display:block}.custom-movements p{font-size:13px;padding:10px 0}}
+
+/* Language preference changes presentation only; controls remain usable on iPhone. */
+.language-switch{display:flex;align-items:center;flex-shrink:0;gap:2px;padding:2px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.language-switch button{min-width:44px;min-height:44px;padding:8px;font-size:13px;border-radius:7px;white-space:nowrap}
+.language-switch button[aria-pressed=true]{background:var(--accent);color:var(--on-primary);font-weight:600}
+html[lang=zh-Hant] h1,html[lang=zh-Hant] h2,html[lang=zh-Hant] h3,html[lang=zh-Hant] .eyebrow,html[lang=zh-Hant] .section-title>span{letter-spacing:0}
+html[lang=zh-Hant] .mode-card,html[lang=zh-Hant] .primary{line-height:1.5}
+html[lang=zh-Hant] .mini-movements{flex-wrap:wrap}
+@media(max-width:600px){.header{gap:12px}.header>nav{display:none}}
