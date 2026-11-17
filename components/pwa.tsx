@@ -1,6 +1,8 @@
 'use client';
+import {useLanguage} from '@/components/language';
 import {useEffect,useState} from 'react';
 export default function Pwa(){
+ const {t}=useLanguage();
  const [ready,setReady]=useState(false);const [offline,setOffline]=useState(false);
  useEffect(()=>{
   let alive=true;
@@ -10,5 +12,5 @@ export default function Pwa(){
   }
   return()=>{alive=false;window.removeEventListener('online',update);window.removeEventListener('offline',update)};
  },[]);
- return <p className="small muted" role="status">{offline?'Offline · workouts remain on this device':ready?'Offline shell ready · iPhone: Safari → Share → Add to Home Screen':'iPhone: Safari → Share → Add to Home Screen. Open online once before offline use.'}</p>;
+ return <p className="small muted" role="status">{offline?t("Offline · workouts remain on this device"):ready?t("Offline shell ready · iPhone: Safari → Share → Add to Home Screen"):t("iPhone: Safari → Share → Add to Home Screen. Open online once before offline use.")}</p>;
 }
